@@ -118,7 +118,118 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="background" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\background.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="background_keyboard" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\background_keyboard.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="button_active" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\button_active.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="button_active_146" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\button_active_146.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="button_active_222" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\button_active_222.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="button_active_298" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\button_active_298.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="button_active_449" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\button_active_449.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="button_active_906" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\button_active_906.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="button_delete_active" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\button_delete_active.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="button_delete_hover" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\button_delete_hover.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="button_delete_normal" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\button_delete_normal.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="button_hover" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\button_hover.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="button_hover_146" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\button_hover_146.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="button_hover_222" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\button_hover_222.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="button_hover_298" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\button_hover_298.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="button_hover_449" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\button_hover_449.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="button_hover_906" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\button_hover_906.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="button_normal" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\button_normal.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="button_normal_146" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\button_normal_146.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="button_normal_222" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\button_normal_222.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="button_normal_298" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\button_normal_298.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="button_normal_449" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\button_normal_449.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="button_normal_906" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\button_normal_906.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="button_shift_active" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\button_shift_active.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="button_shift_hover" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\button_shift_hover.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="button_shift_normal" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\button_shift_normal.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="ContentPanel" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\ContentPanel.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="cursorBlue" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\cursorBlue.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="globe" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\globe.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="https" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\https.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="InfoMessagePanel" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\InfoMessagePanel.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="InfoMessagePanel_Down" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\InfoMessagePanel_Down.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="SubMenuBack_ButtonFocus" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\SubMenuBack-ButtonFocus.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="SubMenuBack_ButtonNoFocus" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\SubMenuBack-ButtonNoFocus.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="SubMenuBack_Footer" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\SubMenuBack-Footer.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="SubMenuBack_Footer2" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\SubMenuBack-Footer2.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="SubMenuBack_Header" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\SubMenuBack-Header.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="SubMenuBack_MiddleNF" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\SubMenuBack-MiddleNF.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

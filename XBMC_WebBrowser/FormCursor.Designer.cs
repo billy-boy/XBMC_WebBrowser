@@ -43,6 +43,7 @@
             this.Text = "FormCursor";
             this.TopMost = true;
             this.TransparencyKey = System.Drawing.Color.White;
+            this.Load += new System.EventHandler(this.FormCursor_Load);
             this.ResumeLayout(false);
 
         }

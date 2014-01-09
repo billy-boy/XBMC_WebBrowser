@@ -18,47 +18,65 @@ namespace XBMC_WebBrowser
 {
     public partial class FormMain : Form
     {
-        private String mainUrl;
-        private String mainTitle;
-        private String userAgent;
-        private String userDataFolder;
-        
-        private FormZoom formZoom;
-        private FormKeyboard formKeyboardNavi;
-        private FormKeyboard formKeyboardSearch;
-        private FormPopup formPopup;
+        #region Header
+
+        #region Sub-Forms
+        private FormZoom formZoom = null;
+        private FormKeyboard formKeyboardNavi = null;
+        private FormKeyboard formKeyboardSearch = null;
+        private FormPopup formPopup = null;
         private FormCursor formCursor;
-        private FormFavourites formFavourites;
-        private FormShortcuts formShortcuts;
-        private FormContextMenu formContextMenu;
+        private FormFavourites formFavourites = null;
+        private FormShortcuts formShortcuts = null;
+        private FormContextMenu formContextMenu = null;
+        #endregion
+
+        private String mainUrl = "http://www.google.de/";
+        private String mainTitle = "";
+        private String userAgent = "";
+        private String userDataFolder = "";
+
+        private bool showPopups = false;
+        private bool showScrollBar = true;
+        private bool useCustomCursor = true;
+        private bool mouseEnabled = true;
+        private bool urlKeyboardEnabled = false;
+        private bool supressScriptWarnings = true;
         
-        private bool showPopups;
-        private bool showScrollBar;
-        private bool useCustomCursor;
-        private bool mouseEnabled;
-        
+        #region Magnifier
+        private int magnifierWidth = 1280;
+        private int magnifierHeigth = 720;
+        private int magnifierZoom = 2;
+        private int magnifierCaptureSize = 100;
+        #endregion
+
+        #region ActiveX zoom
+        private int activexZoom = 100;
+        private int activexZoomStep = 50;
+        #endregion
+
+        #region Cursor & mouse moving
         private int acceleration;
-        private int minMouseSpeed;
-        private int maxMouseSpeed;
-        private int zoom;
-        private int magnifierWidth;
-        private int magnifierHeigth;
-        private int magnifierZoom;
-        private int customCursorSize;
-        private int scrollSpeed;
+        private int minMouseSpeed = 10;
+        private int maxMouseSpeed = 10;
+
+        private int customCursorSize = 64;
+        private int scrollSpeed = 20;
 
         private Point lastMousePosition;
-        private long lastMousePositionChange;
-        
-        private ArrayList allKeys;
-        private String keyMapUp, keyMapDown, keyMapLeft, keyMapRight, keyMapUpLeft, keyMapUpRight, keyMapDownLeft, keyMapDownRight, keyMapClick, keyMapDoubleClick, keyMapZoomIn, keyMapZoomOut, keyMapMagnifier, keyMapNavigate, keyMapClose, keyMapKeyboard, keyMapFavourites, keyMapShortCuts, keyMapTAB, keyMapESC, keyMapToggleMouse, keyMapContextMenu, keyMapF5;
-        
+        private long lastMousePositionChange = 0;
+        #endregion
+
+        private SHDocVw.WebBrowser nativeBrowser;
+
+        #region DLL imports and constants
         private const UInt32 MOUSEEVENTF_MOVE = 0x0001;
         private const UInt32 MOUSEEVENTF_LEFTDOWN = 0x0002;
         private const UInt32 MOUSEEVENTF_LEFTUP = 0x0004;
+        private const UInt32 MOUSEEVENTF_RIGHTDOWN = 0x0008;
+        private const UInt32 MOUSEEVENTF_RIGHTUP = 0x0010;
+        private const UInt32 MOUSEEVENTF_WHEEL = 0x0800;
         private const int SW_SHOWMAXIMIZED = 3;
-
-        private SHDocVw.WebBrowser nativeBrowser;
 
         [DllImport("User32.dll")]
         private static extern void mouse_event(uint dwFlags, uint dx, uint dy, int dwData, uint dwExtraInf);
@@ -68,123 +86,99 @@ namespace XBMC_WebBrowser
         static extern bool SetForegroundWindow(IntPtr hWnd);
         [DllImport("User32.dll")]
         static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+        #endregion
+
+        #endregion
 
         public FormMain(String[] args)
         {
             InitializeComponent();
+
+            #region Detect and safe userdata folder
             
-            mainTitle = "";
-            mainUrl = "http://www.imdb.com/";
-            userAgent = "";
-            minMouseSpeed = 10;
-            maxMouseSpeed = 10;
-            userDataFolder = "";
-            zoom = 100;
-            magnifierWidth = 1280;
-            magnifierHeigth = 720;
-            magnifierZoom = 3;
-            showPopups = false;
-            showScrollBar = true;
-            useCustomCursor = true;
-            customCursorSize = 64;
-            mouseEnabled = true;
-            scrollSpeed = 20;
-
             if (args.Length > 0)
-            {
                 userDataFolder = args[0].Replace("\"", "");
-                mainTitle = args[1].Replace("\"", "");
-                mainUrl = Uri.UnescapeDataString(args[2]);
-                zoom = Convert.ToInt32(args[3]);
-                showPopups = (args[4] == "yes");
-                minMouseSpeed = Convert.ToInt32(args[5]);
-                maxMouseSpeed = Convert.ToInt32(args[6]);
-                String[] spl = args[7].Split('x');
-                magnifierWidth = Convert.ToInt32(spl[0]);
-                magnifierHeigth = Convert.ToInt32(spl[1]);
-                useCustomCursor = (args[8] == "true");
-                customCursorSize = Convert.ToInt32(args[9]);
-                showScrollBar = (args[10] == "yes");
-                scrollSpeed = Convert.ToInt32(args[11]);
-                userAgent = args[12].Replace("\"", "");
-            }
-                            
-            //When using Windows
-            String file = userDataFolder + "\\keymap";
-            String file2 = "C:\\xbmc_webbrowser\\keymap";
-            if (File.Exists(file))
-            {
-                importKeymap(file);
-            }
-            //When using Wine
-            else if (File.Exists(file2))
-            {
-                importKeymap(file2);
-            }
-            //Default key mapping
-            else
-            {
-                keyMapUp = "NumPad8";
-                keyMapDown = "NumPad2";
-                keyMapLeft = "NumPad4";
-                keyMapRight = "NumPad6";
-                keyMapUpLeft = "NumPad7";
-                keyMapUpRight = "NumPad9";
-                keyMapDownLeft = "NumPad1";
-                keyMapDownRight = "NumPad3";
-                keyMapToggleMouse = "Multiply";
-                keyMapClick = "NumPad5";
-                keyMapZoomIn = "Add";
-                keyMapZoomOut = "Subtract";
-                keyMapContextMenu = "Divide";
-                keyMapClose = "NumPad0";
-                keyMapMagnifier = "";
-                keyMapFavourites = "";
-                keyMapShortCuts = "";
-                keyMapNavigate = "";
-                keyMapDoubleClick = "";
-                keyMapKeyboard = "";
-                keyMapTAB = "";
-                keyMapESC = "";
-                keyMapF5 = "";
-            }
-            allKeys = new ArrayList();
-            allKeys.Add(keyMapUp);
-            allKeys.Add(keyMapDown);
-            allKeys.Add(keyMapLeft);
-            allKeys.Add(keyMapRight);
-            allKeys.Add(keyMapUpLeft);
-            allKeys.Add(keyMapUpRight);
-            allKeys.Add(keyMapDownLeft);
-            allKeys.Add(keyMapDownRight);
-            allKeys.Add(keyMapClose);
-            allKeys.Add(keyMapMagnifier);
-            allKeys.Add(keyMapNavigate);
-            allKeys.Add(keyMapZoomIn);
-            allKeys.Add(keyMapZoomOut);
-            allKeys.Add(keyMapClick);
-            allKeys.Add(keyMapDoubleClick);
-            allKeys.Add(keyMapKeyboard);
-            allKeys.Add(keyMapFavourites);
-            allKeys.Add(keyMapShortCuts);
-            allKeys.Add(keyMapTAB);
-            allKeys.Add(keyMapESC);
-            allKeys.Add(keyMapToggleMouse);
-            allKeys.Add(keyMapContextMenu);
-            allKeys.Add(keyMapF5);
 
-            formZoom = null;
-            formPopup = null;
-            formKeyboardNavi = null;
-            formKeyboardSearch = null;
-            formFavourites = null;
-            formShortcuts = null;
-            formContextMenu = null;
+            #endregion
+            
+            #region Import from userdata config files
 
-            lastMousePositionChange = 0;
+            // KeyMap
+            String keymap_file = userDataFolder + "\\keymap";       
+            if (File.Exists(keymap_file))
+            {
+                XWKeys.getInstance().importKeymap(keymap_file);
+            }
+
+            // Config
+            String config_file = userDataFolder + "\\config";
+            if (File.Exists(config_file))
+            {
+                importConfig(config_file);
+            }
+
+            #endregion
+
+            //parse arguments
+            parseCommandLineArgs(args);
+
+            //set acceleration to minimum
             acceleration = minMouseSpeed;
+
+            //disable the loading circle
+            loadingCircleNavigation.Visible = false;
+
+            //apply some colors
+            txtNavigateURL.ForeColor = Color.FromArgb(90, 90, 90);
+            pnlNavBar.BackColor = Color.FromArgb(210, 255, 255, 255);
+            txtNavigateURL.BackColor = Color.FromArgb(255, 255, 255, 255);
+
+            //Resize
+            InitSize();
+        }
+
+        private void FormMain_Load(object sender, EventArgs e)
+        {
+            //Bring the form to front (from behind XBMC)
+            this.BringToFront();
+
+            //Initialization of all things that should be done in loading event
+            InitCursor();
+            InitWebBrowser();
+
+            //Set the cursor default position
+            mouse_event(MOUSEEVENTF_MOVE, 1, 1, 0, 0);
+        }
+
+        #region Initializations & config importings/parsings
+
+        private void InitSize()
+        {
+            //Set form size
             this.Size = new System.Drawing.Size(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height);
+            this.pnlNavBar.Width = this.ClientSize.Width - (this.pnlNavBar.Left * 2);
+            //this.txtNavigateURL.Width = this.Size.Width - this.txtNavigateURL.Left;
+            this.txtNavigateURL.Width = this.pnlNavBar.Width - (this.txtNavigateURL.Left * 2);
+            this.loadingCircleNavigation.Left = this.pictNavProtocol.Left;
+        }
+
+        private void InitWebBrowser()
+        {
+            //Init the WebBrowser
             webBrowser1.ScrollBarsEnabled = showScrollBar;
+            webBrowser1.ScriptErrorsSuppressed = supressScriptWarnings;
+            webBrowser1.IsWebBrowserContextMenuEnabled = false;
+            //Navigate to 1st URL
+            navigate(mainUrl);
+            //Getting natvie webbrowser (ActiveX control) and safe for usage
+            nativeBrowser = (SHDocVw.WebBrowser)webBrowser1.ActiveXInstance;
+            nativeBrowser.NewWindow2 += nativeBrowser_NewWindow2;
+            //webBrowser1.DocumentCompleted += webBrowser1_DocumentCompleted;
+        }
+
+        private void InitCursor()
+        {
+            //Show the cursor
             if (useCustomCursor)
             {
                 Cursor.Hide();
@@ -205,17 +199,9 @@ namespace XBMC_WebBrowser
                 formCursor.Location = new Point(Cursor.Position.X + 1, Cursor.Position.Y + 1);
                 formCursor.Show();
             }
-            if (userAgent=="")
-                webBrowser1.Navigate(mainUrl);
-            else
-                webBrowser1.Navigate(mainUrl, null, null, "User-Agent: " + userAgent);
-            nativeBrowser = (SHDocVw.WebBrowser)webBrowser1.ActiveXInstance;
-            nativeBrowser.NewWindow2 += nativeBrowser_NewWindow2;
-            webBrowser1.DocumentCompleted += webBrowser1_DocumentCompleted;
-            mouse_event(MOUSEEVENTF_MOVE, 1, 1, 0, 0);
         }
 
-        private void importKeymap(String file)
+        private void importConfig(String file)
         {
             StreamReader str = new StreamReader(file);
             String line;
@@ -224,58 +210,83 @@ namespace XBMC_WebBrowser
                 if (line.Contains("="))
                 {
                     String[] spl = line.Split('=');
-                    if (spl[0] == "Up")
-                        keyMapUp = spl[1].Trim();
-                    else if (spl[0] == "Down")
-                        keyMapDown = spl[1].Trim();
-                    else if (spl[0] == "Left")
-                        keyMapLeft = spl[1].Trim();
-                    else if (spl[0] == "Right")
-                        keyMapRight = spl[1].Trim();
-                    else if (spl[0] == "UpLeft")
-                        keyMapUpLeft = spl[1].Trim();
-                    else if (spl[0] == "UpRight")
-                        keyMapUpRight = spl[1].Trim();
-                    else if (spl[0] == "DownLeft")
-                        keyMapDownLeft = spl[1].Trim();
-                    else if (spl[0] == "DownRight")
-                        keyMapDownRight = spl[1].Trim();
-                    else if (spl[0] == "Click")
-                        keyMapClick = spl[1].Trim();
-                    else if (spl[0] == "DoubleClick")
-                        keyMapDoubleClick = spl[1].Trim();
-                    else if (spl[0] == "ZoomIn")
-                        keyMapZoomIn = spl[1].Trim();
-                    else if (spl[0] == "ZoomOut")
-                        keyMapZoomOut = spl[1].Trim();
-                    else if (spl[0] == "EnterURL")
-                        keyMapNavigate = spl[1].Trim();
-                    else if (spl[0] == "Magnifier")
-                        keyMapMagnifier = spl[1].Trim();
-                    else if (spl[0] == "CloseWindow")
-                        keyMapClose = spl[1].Trim();
-                    else if (spl[0] == "ShowKeyboard")
-                        keyMapKeyboard = spl[1].Trim();
-                    else if (spl[0] == "ShowFavourites")
-                        keyMapFavourites = spl[1].Trim();
-                    else if (spl[0] == "ShowShortcuts")
-                        keyMapShortCuts = spl[1].Trim();
-                    else if (spl[0] == "PressTAB")
-                        keyMapTAB = spl[1].Trim();
-                    else if (spl[0] == "PressESC")
-                        keyMapESC = spl[1].Trim();
-                    else if (spl[0] == "ToggleMouse")
-                        keyMapToggleMouse = spl[1].Trim();
-                    else if (spl[0] == "PressF5")
-                        keyMapF5 = spl[1].Trim();
-                    else if (spl[0] == "ShowContextMenu")
-                        keyMapContextMenu = spl[1].Trim();
-                    
+                    switch (spl[0])
+                    {
+                        case "mainTitle": mainTitle = spl[1].Trim(); break;
+                        case "mainURL": mainUrl = spl[1].Trim(); break;
+                        case "userAgent": userAgent = spl[1].Trim(); break;
+                        case "showPopups": showPopups = Boolean.Parse(spl[1].Trim()); break;
+                        case "showScrollBar": showScrollBar = Boolean.Parse(spl[1].Trim()); break;
+                        case "useCustomCursor": useCustomCursor = Boolean.Parse(spl[1].Trim()); break;
+                        case "customCursorSize": customCursorSize = Int32.Parse(spl[1].Trim()); break;
+                        case "mouseEnabled": mouseEnabled = Boolean.Parse(spl[1].Trim()); break;
+                        case "urlKeyboardEnabed": urlKeyboardEnabled = Boolean.Parse(spl[1].Trim()); break;
+                        case "supressScriptWarnings": supressScriptWarnings = Boolean.Parse(spl[1].Trim()); break;
+                        case "scrollSpeed": scrollSpeed = Int32.Parse(spl[1].Trim()); break;
+                        case "magnifierWidth": magnifierWidth = Int32.Parse(spl[1].Trim()); break;
+                        case "magnifierHeigth": magnifierHeigth = Int32.Parse(spl[1].Trim()); break;
+                        case "magnifierZoom": magnifierZoom = Int32.Parse(spl[1].Trim()); break;
+                        case "activexZoomStep": activexZoomStep = Int32.Parse(spl[1].Trim()); break;
+                    }
                 }
             }
             str.Close();
         }
 
+        private void parseCommandLineArgs(String[] args)
+        {
+            //args[0] allready used
+            if (args.Length > 1)
+                mainTitle = args[1].Replace("\"", "");
+            if (args.Length > 2)
+                mainUrl = Uri.UnescapeDataString(args[2]);
+            if (args.Length > 3)
+                activexZoomStep = Convert.ToInt32(args[3]);
+            if (args.Length > 4)
+                showPopups = (args[4] == "yes");
+            if (args.Length > 5)
+                minMouseSpeed = Convert.ToInt32(args[5]);
+            if (args.Length > 6)
+                maxMouseSpeed = Convert.ToInt32(args[6]);
+            if (args.Length > 7)
+            {
+                String[] spl = args[7].Split('x');
+                magnifierWidth = Convert.ToInt32(spl[0]);
+                magnifierHeigth = Convert.ToInt32(spl[1]);
+            }
+            if (args.Length > 8)
+                useCustomCursor = (args[8] == "true");
+            if (args.Length > 9)
+                customCursorSize = Convert.ToInt32(args[9]);
+            if (args.Length > 10)
+                showScrollBar = (args[10] == "yes");
+            if (args.Length > 11)
+                scrollSpeed = Convert.ToInt32(args[11]);
+            if (args.Length > 12)
+                userAgent = args[12].Replace("\"", "");
+        }
+
+        #endregion
+                
+        private void navigate(String url)
+        {
+            if (String.IsNullOrEmpty(url)) return;
+            if (!url.StartsWith("http://") && !url.StartsWith("https://"))
+                url = "http://" + url;
+            try
+            {
+                if (userAgent == "")
+                    webBrowser1.Navigate(new Uri(url));
+                else
+                    webBrowser1.Navigate(new Uri(url), null, null, "User-Agent: " + userAgent);
+                webBrowser1.Focus();
+            }
+            catch (System.UriFormatException)
+            {
+                return;
+            }
+        }
+        
         private void setAcceleration()
         {
             if ((DateTime.Now.Ticks - lastMousePositionChange) <= 1000000)
@@ -287,26 +298,19 @@ namespace XBMC_WebBrowser
                 acceleration = minMouseSpeed;
         }
 
-        private void timer_Tick(object sender, EventArgs e)
+        private void HandleSpecialKeys(Keys keyData)
         {
-            if (useCustomCursor)
-                formCursor.Location = new Point(Cursor.Position.X + 1, Cursor.Position.Y + 1);
-            if (Cursor.Position != lastMousePosition && formZoom != null)
-            {
-                lastMousePosition = Cursor.Position;
-                formZoom.Hide();
-                updateMagnifier();
-            }
             try
             {
-                String keys = "";
-                foreach (int i in Enum.GetValues(typeof(Keys)))
-                {
-                    if (GetAsyncKeyState(i) == -32767)
-                    {
-                        keys += Enum.GetName(typeof(Keys), i) + " ";
-                    }
-                }
+                String keys = keyData.ToString();
+                //String keys = "";
+                //foreach (int i in Enum.GetValues(typeof(Keys)))
+                //{
+                //    if (GetAsyncKeyState(i) == -32767)
+                //    {
+                //        keys += Enum.GetName(typeof(Keys), i) + " ";
+                //    }
+                //}
                 keys = keys.Trim();
                 if (keys.StartsWith("ShiftKey "))
                     keys = keys.Substring(9);
@@ -315,128 +319,136 @@ namespace XBMC_WebBrowser
 
                 if (keys != "")
                 {
-                    if (keys == keyMapLeft)
+                    if (XWKeys.getInstance().keyMapLeft.Contains(keys))
                     {
                         if (mouseEnabled)
                         {
                             setAcceleration();
-                            Cursor.Position = new Point(Cursor.Position.X - acceleration, Cursor.Position.Y);
+                            if (Cursor.Position.X > this.webBrowser1.Left)
+                             Cursor.Position = new Point(Cursor.Position.X - acceleration, Cursor.Position.Y);
                             lastMousePositionChange = DateTime.Now.Ticks;
-                            if (Cursor.Position.X == 0)
+                            if (Cursor.Position.X <= this.webBrowser1.Left)
                                 webBrowser1.Navigate("javascript:window.scrollBy(-" + scrollSpeed + ", 0);");
-                        }           
+                        }
                         else
                             webBrowser1.Navigate("javascript:window.scrollBy(-" + scrollSpeed + ", 0);");
                     }
-                    else if (keys == keyMapUp)
+                    else if (XWKeys.getInstance().keyMapUp.Contains(keys))
                     {
                         if (mouseEnabled)
                         {
                             setAcceleration();
-                            Cursor.Position = new Point(Cursor.Position.X, Cursor.Position.Y - acceleration);
+                            if (Cursor.Position.Y > this.webBrowser1.Top)
+                                Cursor.Position = new Point(Cursor.Position.X, Cursor.Position.Y - acceleration);
                             lastMousePositionChange = DateTime.Now.Ticks;
-                            if (Cursor.Position.Y == 0)
+                            if (Cursor.Position.Y <= this.webBrowser1.Top)
                                 webBrowser1.Navigate("javascript:window.scrollBy(0, -" + scrollSpeed + ");");
                         }
                         else
                             webBrowser1.Navigate("javascript:window.scrollBy(0, -" + scrollSpeed + ");");
                     }
-                    else if (keys == keyMapRight)
+                    else if (XWKeys.getInstance().keyMapRight.Contains(keys))
                     {
                         if (mouseEnabled)
                         {
                             setAcceleration();
-                            Cursor.Position = new Point(Cursor.Position.X + acceleration, Cursor.Position.Y);
+                            if (Cursor.Position.X < (this.webBrowser1.Left + this.webBrowser1.Size.Width) - customCursorSize)
+                                Cursor.Position = new Point(Cursor.Position.X + acceleration, Cursor.Position.Y);
                             lastMousePositionChange = DateTime.Now.Ticks;
-                            if (Cursor.Position.X == this.Size.Width - 1)
+                            if (Cursor.Position.X >= (this.webBrowser1.Left + this.webBrowser1.Size.Width) - customCursorSize)
                                 webBrowser1.Navigate("javascript:window.scrollBy(" + scrollSpeed + ", 0);");
                         }
                         else
                             webBrowser1.Navigate("javascript:window.scrollBy(" + scrollSpeed + ", 0);");
                     }
-                    else if (keys == keyMapDown)
+                    else if (XWKeys.getInstance().keyMapDown.Contains(keys))
                     {
                         if (mouseEnabled)
                         {
                             setAcceleration();
-                            Cursor.Position = new Point(Cursor.Position.X, Cursor.Position.Y + acceleration);
+                            if (Cursor.Position.Y < (this.webBrowser1.Top + this.webBrowser1.Size.Height) - customCursorSize)
+                                Cursor.Position = new Point(Cursor.Position.X, Cursor.Position.Y + acceleration);
                             lastMousePositionChange = DateTime.Now.Ticks;
-                            if (Cursor.Position.Y == this.Size.Height - 1)
+                            if (Cursor.Position.Y >= (this.webBrowser1.Top + this.webBrowser1.Size.Height) - customCursorSize)
                                 webBrowser1.Navigate("javascript:window.scrollBy(0, " + scrollSpeed + ");");
                         }
                         else
                             webBrowser1.Navigate("javascript:window.scrollBy(0, " + scrollSpeed + ");");
                     }
-                    else if (keys == keyMapUpLeft)
+                    else if (XWKeys.getInstance().keyMapUpLeft.Contains(keys))
                     {
                         if (mouseEnabled)
                         {
                             setAcceleration();
-                            Cursor.Position = new Point(Cursor.Position.X - acceleration, Cursor.Position.Y - acceleration);
+                            if (Cursor.Position.X > this.webBrowser1.Left && Cursor.Position.Y > this.webBrowser1.Top)
+                                Cursor.Position = new Point(Cursor.Position.X - acceleration, Cursor.Position.Y - acceleration);
                             lastMousePositionChange = DateTime.Now.Ticks;
-                            if (Cursor.Position.Y == 0)
+                            if (Cursor.Position.Y <= this.webBrowser1.Top)
                                 webBrowser1.Navigate("javascript:window.scrollBy(0, -" + scrollSpeed + ");");
-                            if (Cursor.Position.X == 0)
+                            if (Cursor.Position.X <= this.webBrowser1.Left)
                                 webBrowser1.Navigate("javascript:window.scrollBy(-" + scrollSpeed + ", 0);");
                         }
                         else
                             webBrowser1.Navigate("javascript:window.scrollBy(-" + scrollSpeed + ", -" + scrollSpeed + ");");
                     }
-                    else if (keys == keyMapUpRight)
+                    else if (XWKeys.getInstance().keyMapUpRight.Contains(keys))
                     {
                         if (mouseEnabled)
                         {
                             setAcceleration();
-                            Cursor.Position = new Point(Cursor.Position.X + acceleration, Cursor.Position.Y - acceleration);
+                            if (Cursor.Position.X < (this.webBrowser1.Left + this.webBrowser1.Size.Width - customCursorSize) && Cursor.Position.Y > this.webBrowser1.Top)
+                                Cursor.Position = new Point(Cursor.Position.X + acceleration, Cursor.Position.Y - acceleration);
                             lastMousePositionChange = DateTime.Now.Ticks;
-                            if (Cursor.Position.Y == 0)
+                            if (Cursor.Position.Y <= this.webBrowser1.Top)
                                 webBrowser1.Navigate("javascript:window.scrollBy(0, -" + scrollSpeed + ");");
-                            if (Cursor.Position.X == this.Size.Width - 1)
+                            if (Cursor.Position.X >= (this.webBrowser1.Left + this.webBrowser1.Size.Width - customCursorSize))
                                 webBrowser1.Navigate("javascript:window.scrollBy(" + scrollSpeed + ", 0);");
                         }
                         else
                             webBrowser1.Navigate("javascript:window.scrollBy(" + scrollSpeed + ", -" + scrollSpeed + ");");
                     }
-                    else if (keys == keyMapDownLeft)
+                    else if (XWKeys.getInstance().keyMapDownLeft.Contains(keys))
                     {
                         if (mouseEnabled)
                         {
                             setAcceleration();
-                            Cursor.Position = new Point(Cursor.Position.X - acceleration, Cursor.Position.Y + acceleration);
+                            if (Cursor.Position.X > this.webBrowser1.Left && Cursor.Position.Y < this.webBrowser1.Top + this.webBrowser1.Size.Height - customCursorSize)
+                                Cursor.Position = new Point(Cursor.Position.X - acceleration, Cursor.Position.Y + acceleration);
                             lastMousePositionChange = DateTime.Now.Ticks;
-                            if (Cursor.Position.Y == this.Size.Height - 1)
+                            if (Cursor.Position.Y >= this.webBrowser1.Top + this.webBrowser1.Size.Height - customCursorSize)
                                 webBrowser1.Navigate("javascript:window.scrollBy(0, " + scrollSpeed + ");");
-                            if (Cursor.Position.X == 0)
+                            if (Cursor.Position.X <= this.webBrowser1.Left)
                                 webBrowser1.Navigate("javascript:window.scrollBy(-" + scrollSpeed + ", 0);");
                         }
                         else
                             webBrowser1.Navigate("javascript:window.scrollBy(-" + scrollSpeed + ", " + scrollSpeed + ");");
                     }
-                    else if (keys == keyMapDownRight)
+                    else if (XWKeys.getInstance().keyMapDownRight.Contains(keys))
                     {
                         if (mouseEnabled)
                         {
                             setAcceleration();
-                            Cursor.Position = new Point(Cursor.Position.X + acceleration, Cursor.Position.Y + acceleration);
+                            if (Cursor.Position.Y < this.webBrowser1.Top+this.webBrowser1.Size.Height - customCursorSize && Cursor.Position.X < this.webBrowser1.Left + this.webBrowser1.Size.Width - customCursorSize)
+                                Cursor.Position = new Point(Cursor.Position.X + acceleration, Cursor.Position.Y + acceleration);
                             lastMousePositionChange = DateTime.Now.Ticks;
-                            if (Cursor.Position.Y == this.Size.Height - 1)
+                            if (Cursor.Position.Y >= this.webBrowser1.Top+this.webBrowser1.Size.Height - customCursorSize)
                                 webBrowser1.Navigate("javascript:window.scrollBy(0, " + scrollSpeed + ");");
-                            if (Cursor.Position.X == this.Size.Width - 1)
+                            if (Cursor.Position.X >= this.webBrowser1.Left + this.webBrowser1.Size.Width - customCursorSize)
                                 webBrowser1.Navigate("javascript:window.scrollBy(" + scrollSpeed + ", 0);");
                         }
                         else
                             webBrowser1.Navigate("javascript:window.scrollBy(" + scrollSpeed + ", " + scrollSpeed + ");");
                     }
-                    else if (keys == keyMapClick)
+                    else if (XWKeys.getInstance().keyMapClick.Contains(keys))
                     {
                         mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
                         mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
                     }
-                    else if (keys == keyMapDoubleClick)
+                    else if (XWKeys.getInstance().keyMapDoubleClick.Contains(keys))
                     {
                         doubleClick();
                     }
-                    else if (keys == keyMapClose)
+                    else if (XWKeys.getInstance().keyMapClose.Contains(keys))
                     {
                         if (formPopup != null)
                         {
@@ -484,7 +496,7 @@ namespace XBMC_WebBrowser
                             Application.Exit();
                         }
                     }
-                    else if (keys == keyMapZoomIn)
+                    else if (XWKeys.getInstance().keyMapZoomIn.Contains(keys))
                     {
                         if (formZoom != null)
                         {
@@ -494,11 +506,15 @@ namespace XBMC_WebBrowser
                             updateMagnifier();
                         }
                         else
-                            SendKeys.Send("^{ADD}");
+                        {
+                            activexZoom += activexZoomStep;
+                            Zoom(activexZoom);
+                            //SendKeys.Send("^{ADD}");
+                        }
                     }
-                    else if (keys == keyMapZoomOut)
+                    else if (XWKeys.getInstance().keyMapZoomOut.Contains(keys))
                     {
-                        if (formZoom != null && magnifierZoom>2)
+                        if (formZoom != null && magnifierZoom > 2)
                         {
                             magnifierZoom--;
                             lastMousePosition = Cursor.Position;
@@ -506,63 +522,140 @@ namespace XBMC_WebBrowser
                             updateMagnifier();
                         }
                         else
-                            SendKeys.Send("^{SUBTRACT}");
+                        {
+                            activexZoom -= activexZoomStep;
+                            Zoom(activexZoom);
+                            //SendKeys.Send("^{SUBTRACT}");
+                        }
                     }
-                    else if (keys == keyMapTAB)
+                    else if (XWKeys.getInstance().keyMapTAB.Contains(keys))
                     {
                         pressTab();
                     }
-                    else if (keys == keyMapESC)
+                    else if (XWKeys.getInstance().keyMapESC.Contains(keys))
                     {
                         pressEsc();
                     }
-                    else if (keys == keyMapF5)
+                    else if (XWKeys.getInstance().keyMapF5.Contains(keys))
                     {
                         pressF5();
                     }
-                    else if (keys == keyMapMagnifier)
+                    else if (XWKeys.getInstance().keyMapMagnifier.Contains(keys))
                     {
                         showMagnifier();
                     }
-                    else if (keys == keyMapNavigate)
+                    else if (XWKeys.getInstance().keyMapNavigate.Contains(keys))
                     {
                         enterUrl();
                     }
-                    else if (keys == keyMapKeyboard)
+                    else if (XWKeys.getInstance().keyMapKeyboard.Contains(keys))
                     {
                         showKeyboard();
                     }
-                    else if (keys == keyMapFavourites)
+                    else if (XWKeys.getInstance().keyMapFavourites.Contains(keys))
                     {
                         showFavourites();
                     }
-                    else if (keys == keyMapShortCuts)
+                    else if (XWKeys.getInstance().keyMapShortCuts.Contains(keys))
                     {
                         showShortcuts();
                     }
-                    else if (keys == keyMapToggleMouse)
+                    else if (XWKeys.getInstance().keyMapToggleMouse.Contains(keys))
                         mouseEnabled = !mouseEnabled;
-                    else if (keys == keyMapContextMenu)
+                    else if (XWKeys.getInstance().keyMapContextMenu.Contains(keys))
                     {
                         showContextMenu();
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                //Console.WriteLine(ex.Message);
+            }
+        }
+
+        private void Zoom(int factor)
+        {
+            object pvaIn = factor;
+            try
+            {
+                this.nativeBrowser.ExecWB(SHDocVw.OLECMDID.OLECMDID_OPTICAL_ZOOM, SHDocVw.OLECMDEXECOPT.OLECMDEXECOPT_DONTPROMPTUSER, ref pvaIn, IntPtr.Zero);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        #region Magnify handling
+
+        private Timer _timerUpdateMagnifier = new Timer();
+
+        private void updateMagnifier_Tick(object sender, EventArgs e)
+        {
+            Timer t = sender as Timer;
+            if (t == null) return;
+
+            t.Enabled = false;
+            updateMagnifier();
+        }
+
+        private void showMagnifier()
+        {
+            if (formZoom == null)
+            {
+                formZoom = new FormZoom();
+                formZoom.Size = new System.Drawing.Size(magnifierWidth, magnifierHeigth);
+                updateMagnifier();
+            }
+            else
+            {
+                formZoom.Close();
+                formZoom = null;
             }
         }
 
         private void updateMagnifier()
         {
-            Bitmap bmp = new Bitmap(formZoom.pictureBox1.Size.Width / magnifierZoom, formZoom.pictureBox1.Size.Height / magnifierZoom);
-            Graphics g = Graphics.FromImage(bmp);
-            g.CopyFromScreen(Cursor.Position.X - (formZoom.pictureBox1.Size.Width / (magnifierZoom * 2)), Cursor.Position.Y - (formZoom.pictureBox1.Size.Height / (magnifierZoom * 2)), 0, 0, new Size(formZoom.pictureBox1.Size.Width / magnifierZoom, formZoom.pictureBox1.Size.Height / magnifierZoom));
-            g.Dispose();
-            formZoom.Show();
-            formZoom.Location = new Point(Cursor.Position.X - formZoom.Width / 2, Cursor.Position.Y - formZoom.Height / 2);
-            formZoom.pictureBox1.BackgroundImage = bmp;
+            if (formZoom != null)
+            {
+                //Taking a screenshot
+                Image img = XWMagnifier.CaptureMagnifier(this.Handle,Cursor.Position, new Size(magnifierCaptureSize,magnifierCaptureSize));
+                //img.Save("E:\\xbmc_webbrowser\\orig_" + DateTime.Now.Ticks.ToString() + ".png");
+
+                //Zooming the screenshot
+                Bitmap magBmp = new Bitmap(magnifierWidth, magnifierHeigth);
+                Graphics g = this.CreateGraphics();
+                g = Graphics.FromImage(magBmp);
+                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                g.DrawImage(img, new Rectangle(0, 0, magBmp.Width, magBmp.Height));
+                //magBmp.Save("E:\\xbmc_webbrowser\\zoom_" + DateTime.Now.Ticks.ToString() + ".png");
+
+                //Painting the screenshot
+                //formZoom = new FormZoom();
+                //formZoom.Size = new Size(magnifierWidth, magnifierHeigth);
+                formZoom.Repaint(magBmp);
+
+                //Clean up
+                g.Dispose();
+                g = null;
+                img.Dispose();
+                img = null;
+                magBmp.Dispose();
+                magBmp = null;
+
+                //Show the magnifier if hidden
+                if (!formZoom.Visible)
+                    formZoom.Show();
+
+                //Positioning the magnifier correctly
+                formZoom.Location = new Point(Cursor.Position.X - formZoom.Width / 2, Cursor.Position.Y - formZoom.Height / 2);
+            }
         }
+
+        #endregion
+
+        #region Menu button handling
 
         private void showContextMenu()
         {
@@ -570,27 +663,23 @@ namespace XBMC_WebBrowser
             {
                 formContextMenu = new FormContextMenu();
                 formContextMenu.ShowDialog();
-                String entry = ((ListBoxEntry)formContextMenu.listBoxMenu.SelectedItem).title;
-                if (entry == "Show Magnifier")
-                    showMagnifier();
-                else if (entry == "Enter URL")
-                    enterUrl();
-                else if (entry == "Show Keyboard")
-                    showKeyboard();
-                else if (entry == "Show Favourites")
-                    showFavourites();
-                else if (entry == "Show Shortcuts")
-                    showShortcuts();
-                else if (entry == "Toggle Mouse/Scroll")
-                    mouseEnabled = !mouseEnabled;
-                else if (entry == "Press TAB")
-                    pressTab();
-                else if (entry == "Press ESC")
-                    pressEsc();
-                else if (entry == "Press F5")
-                    pressF5();
-                else if (entry == "Double Click")
-                    doubleClick();
+                ContextMenuResult result = formContextMenu.Result;
+
+                switch (result)
+                {
+                    case ContextMenuResult.Navigate: enterUrl(); break;
+                    case ContextMenuResult.Keyboard: showKeyboard(); break;
+                    case ContextMenuResult.Magnifier: showMagnifier(); break;
+                    case ContextMenuResult.Favourites: showFavourites(); break;
+                    case ContextMenuResult.Shortcuts: showShortcuts(); break;
+                    case ContextMenuResult.DoubleClick: doubleClick(); break;
+                    case ContextMenuResult.RightClick: rightClick(); break;
+                    case ContextMenuResult.Tab: pressTab(); break;
+                    case ContextMenuResult.Esc: pressEsc(); break;
+                    case ContextMenuResult.F5: pressF5(); break;
+                }
+                //else if (entry == "Toggle Mouse/Scroll")
+                //    mouseEnabled = !mouseEnabled;
                 
                 formContextMenu = null;
             }
@@ -599,6 +688,12 @@ namespace XBMC_WebBrowser
                 formContextMenu.Close();
                 formContextMenu = null;
             }
+        }
+
+        private static void rightClick()
+        {
+            mouse_event(MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0);
+            mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
         }
 
         private static void doubleClick()
@@ -624,31 +719,16 @@ namespace XBMC_WebBrowser
             SendKeys.Send("{F5}");
         }
 
-        private void showMagnifier()
-        {
-            if (formZoom == null)
-            {
-                formZoom = new FormZoom();
-                formZoom.Size = new System.Drawing.Size(magnifierWidth, magnifierHeigth);
-                updateMagnifier();
-            }
-            else
-            {
-                formZoom.Close();
-                formZoom = null;
-            }
-        }
-
-        private void enterUrl()
+        private void enterUrl(String showingUrl = "http://")
         {
             if (formKeyboardNavi == null)
             {
-                formKeyboardNavi = new FormKeyboard("Enter URL:", "http://", true, allKeys);
-                formKeyboardNavi.textBox1.SelectionStart = 7;
+                formKeyboardNavi = new FormKeyboard("Navigiere zu:", showingUrl, true, userDataFolder);
+                formKeyboardNavi._txtText.SelectionStart = 7;
                 formKeyboardNavi.ShowDialog();
-                if (formKeyboardNavi.textBox1.Text != "")
+                if (formKeyboardNavi._txtText.Text != "")
                 {
-                    String url = formKeyboardNavi.textBox1.Text;
+                    String url = formKeyboardNavi._txtText.Text;
                     webBrowser1.Navigate(url);
                 }
                 formKeyboardNavi = null;
@@ -664,11 +744,11 @@ namespace XBMC_WebBrowser
         {
             if (formKeyboardSearch == null)
             {
-                formKeyboardSearch = new FormKeyboard("Enter text:", "", false, allKeys);
+                formKeyboardSearch = new FormKeyboard("Texteingabe", "", false, userDataFolder);
                 formKeyboardSearch.ShowDialog();
-                if (formKeyboardSearch.textBox1.Text != "")
+                if (formKeyboardSearch._txtText.Text != "")
                 {
-                    Clipboard.SetText(formKeyboardSearch.textBox1.Text);
+                    Clipboard.SetText(formKeyboardSearch._txtText.Text);
                     SendKeys.Send("^v");
                 }
                 formKeyboardSearch = null;
@@ -684,11 +764,23 @@ namespace XBMC_WebBrowser
         {
             if (formFavourites == null)
             {
-                formFavourites = new FormFavourites(userDataFolder);
-                formFavourites.ShowDialog();
-                mainTitle = ((ListBoxEntry)formFavourites.listBoxFavs.SelectedItem).title;
-                importPageSettings(mainTitle);
-                formFavourites = null;
+                XWFavouriteList.getInstance().loadFavourites(userDataFolder);
+                if (XWFavouriteList.getInstance().Count <= 0)
+                {
+                    //TODO: ERROR
+                }
+                else
+                {
+                    formFavourites = new FormFavourites(userDataFolder, webBrowser1.Url.ToString());
+                    if (formFavourites.ShowDialog() == DialogResult.OK)
+                    {
+                        XWFavourite favorit = formFavourites.Favorit;
+                        //mainTitle = ((ListBoxEntry)formFavourites.listBoxFavs.SelectedItem).title;
+                        //importPageSettings(mainTitle);
+                        navigate(favorit.URL);
+                    }
+                    formFavourites = null;
+                }
             }
             else
             {
@@ -701,10 +793,21 @@ namespace XBMC_WebBrowser
         {
             if (formShortcuts == null)
             {
-                formShortcuts = new FormShortcuts(userDataFolder, mainTitle, mainUrl, webBrowser1.Url.ToString(), allKeys);
-                formShortcuts.ShowDialog();
-                webBrowser1.Navigate(((ListBoxEntry)formShortcuts.listBoxFavs.SelectedItem).url);
-                formShortcuts = null;
+                String mainURL = webBrowser1.Url.ToString().Replace("http://", "").Replace("https://", "");
+                if (mainURL.IndexOf("/") >= 0)
+                    mainURL = mainURL.Substring(0, mainURL.IndexOf("/"));
+                XWShortcutList.getInstance(mainURL).loadShortcuts(userDataFolder);
+                if (XWShortcutList.getInstance(mainURL).Count <= 0)
+                {
+                    //TODO: ERROR
+                }
+                else
+                {
+                    formShortcuts = new FormShortcuts(userDataFolder, mainURL, webBrowser1.Url.ToString());
+                    if (formShortcuts.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                        webBrowser1.Navigate(formShortcuts.Shortcut.URL);
+                    formShortcuts = null;
+                }
             }
             else
             {
@@ -713,55 +816,52 @@ namespace XBMC_WebBrowser
             }
         }
 
-        public void importPageSettings(String title)
-        {
-            if (Directory.Exists(userDataFolder))
-            {
-                StreamReader str = new StreamReader(userDataFolder + "\\sites\\" + title + ".link");
-                String line;
-                while ((line = str.ReadLine()) != null)
-                {
-                    if (line.Contains("="))
-                    {
-                        String entry = line.Substring(0, line.IndexOf("="));
-                        String content = line.Substring(line.IndexOf("=") + 1);
-                        if (entry == "url")
-                            mainUrl = content.Trim();
-                        else if (entry == "zoom")
-                            zoom = Convert.ToInt32(content.Trim());
-                        else if (entry == "showPopups")
-                            showPopups = (content.Trim() == "yes");
-                        else if (entry == "showScrollbar")
-                            showScrollBar = (content.Trim() == "yes");
-                        else if (entry == "userAgent")
-                            userAgent = content.Trim();
-                    }
-                }
-                webBrowser1.Navigate(mainUrl);
-                webBrowser1.DocumentCompleted += webBrowser1_DocumentCompleted;
-            }
-        }
+        #endregion
+
+        #region WebBrowser handling
 
         private void webBrowser1_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
         {
-            if (mainUrl.StartsWith("http://www.watchever.de/player/") && webBrowser1.Document.Body.InnerHtml.Contains("<DIV class=einloggen>"))
+            //Show the URL and Info
+            txtNavigateURL.Text = webBrowser1.Url.ToString();
+            if (webBrowser1.Url.Scheme == "https")
             {
-                FormLogin formLogin = new FormLogin();
-                formLogin.ShowDialog();
-                ASCIIEncoding Encode = new ASCIIEncoding();
-                byte[] post = Encode.GetBytes("login=" + formLogin.textBoxEmail.Text + "&password=" + formLogin.textBoxPW.Text + "&remember=rememberMe");
-                string url = "http://www.watchever.de/CN/";
-                string PostHeaders = "Content-Type: application/x-www-form-urlencoded";
-                webBrowser1.DocumentCompleted -= webBrowser1_DocumentCompleted;
-                nativeBrowser.Navigate(url, null, null, post, PostHeaders);
+                pictNavProtocol.Image = Properties.Resources.https;
             }
+            else
+            {
+                pictNavProtocol.Image = Properties.Resources.globe;
+            }
+            this.loadingCircleNavigation.Active = false;
+            this.loadingCircleNavigation.Visible = false;
+            this.pictNavProtocol.Visible = true;
+
+            //Absolute finished loading
             if (e.Url.AbsolutePath == webBrowser1.Url.AbsolutePath)
             {
                 System.Threading.Thread.Sleep(100);
-                ((SHDocVw.WebBrowser)webBrowser1.ActiveXInstance).ExecWB(SHDocVw.OLECMDID.OLECMDID_OPTICAL_ZOOM, SHDocVw.OLECMDEXECOPT.OLECMDEXECOPT_DONTPROMPTUSER, zoom, IntPtr.Zero);
-                webBrowser1.DocumentCompleted -= webBrowser1_DocumentCompleted;
+                ((SHDocVw.WebBrowser)webBrowser1.ActiveXInstance).ExecWB(SHDocVw.OLECMDID.OLECMDID_OPTICAL_ZOOM, SHDocVw.OLECMDEXECOPT.OLECMDEXECOPT_DONTPROMPTUSER, activexZoom, IntPtr.Zero);
+                //webBrowser1.DocumentCompleted -= webBrowser1_DocumentCompleted;
                 webBrowser1.Navigate("javascript:window.scrollBy(0,-500);");
             }
+        }
+
+        private void webBrowser1_Navigating(object sender, WebBrowserNavigatingEventArgs e)
+        {
+            //do not circle on i.e. javascript: navigations
+            if (e.Url.Scheme == "http" || e.Url.Scheme == "https")
+            {
+                this.pictNavProtocol.Visible = false;
+                this.loadingCircleNavigation.Visible = true;
+                this.loadingCircleNavigation.Active = true;
+            }
+        }
+
+        private void webBrowser1_Navigated(object sender, WebBrowserNavigatedEventArgs e)
+        {
+            this.loadingCircleNavigation.Active = false;
+            this.loadingCircleNavigation.Visible = false;
+            this.pictNavProtocol.Visible = true;
         }
 
         void nativeBrowser_NewWindow2(ref object ppDisp, ref bool Cancel)
@@ -778,12 +878,74 @@ namespace XBMC_WebBrowser
                 Cancel = true;
         }
 
+        #endregion
+                
         protected override bool ProcessCmdKey(ref Message msg, Keys keyDaya)
         {
-            if (allKeys.Contains(keyDaya.ToString()))
+            //Console.WriteLine("FormMain | Msg: '" + msg.Msg.ToString() + "' | Key-Data: '" + keyDaya.ToString() + "' | W-Param: '" + msg.WParam.ToInt32().ToString() + "' | L-Param: '" + msg.LParam.ToInt32().ToString() + "'");
+            if (XWKeys.getInstance().AllKeys.Contains(keyDaya.ToString()))
+            {
+                HandleSpecialKeys(keyDaya);
                 return true;
-            else
-                return false;
+            }
+            else              
+                return base.ProcessCmdKey(ref msg, keyDaya);
         }
+
+        #region GUI events
+
+        private void timer_Tick(object sender, EventArgs e)
+        {
+            if (useCustomCursor && formCursor != null)
+                formCursor.Location = new Point(Cursor.Position.X + 1, Cursor.Position.Y + 1);
+
+            if ((Cursor.Position.X > lastMousePosition.X + 5 || Cursor.Position.X < lastMousePosition.X - 5
+                || Cursor.Position.Y > lastMousePosition.Y + 5 || Cursor.Position.Y < lastMousePosition.Y - 5)
+                && formZoom != null)
+            {
+                lastMousePosition = Cursor.Position;
+
+                //formZoom.Hide();
+                formZoom.Close();
+                formZoom = null;
+
+                //_timerUpdateMagnifier.Interval = 20;
+                //_timerUpdateMagnifier.Tick += updateMagnifier_Tick;
+                //_timerUpdateMagnifier.Enabled = false;
+            }
+        }
+
+        private void txtNavigateURL_Enter(object sender, EventArgs e)
+        {
+            try
+            {
+                txtNavigateURL.ForeColor = Color.FromArgb(0, 0, 0);
+            }
+            catch (Exception ex) { }
+            if (urlKeyboardEnabled)
+            {
+                enterUrl(txtNavigateURL.Text);
+            }
+        }
+
+        private void txtNavigateURL_Leave(object sender, EventArgs e)
+        {
+            try
+            {
+                txtNavigateURL.ForeColor = Color.FromArgb(90, 90, 90);
+            }
+            catch (Exception ex) { }
+        }
+
+        private void txtNavigateURL_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == (char)Keys.Return || e.KeyChar == (char)Keys.Enter)
+            {
+                navigate(txtNavigateURL.Text);
+            }
+        }
+
+        #endregion
+
     }
 }

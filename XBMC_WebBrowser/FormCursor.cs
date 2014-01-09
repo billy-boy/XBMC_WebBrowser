@@ -16,5 +16,11 @@ namespace XBMC_WebBrowser
         {
             InitializeComponent();
         }
+
+        private void FormCursor_Load(object sender, EventArgs e)
+        {
+            //this.SetStyle(System.Windows.Forms.ControlStyles.SupportsTransparentBackColor, true);
+            //this.BackColor = System.Drawing.Color.Transparent;
+        }
     }
 }

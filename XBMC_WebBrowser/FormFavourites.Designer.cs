@@ -28,43 +28,83 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.listBoxFavs = new System.Windows.Forms.ListBox();
+            this._pictDown = new System.Windows.Forms.PictureBox();
+            this._pictUp = new System.Windows.Forms.PictureBox();
+            this._btn_AddCurrent = new System.Windows.Forms.Button();
+            ((System.ComponentModel.ISupportInitialize)(this._pictDown)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this._pictUp)).BeginInit();
             this.SuspendLayout();
             // 
-            // listBoxFavs
+            // _pictDown
             // 
-            this.listBoxFavs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.listBoxFavs.BackColor = System.Drawing.Color.White;
-            this.listBoxFavs.Font = new System.Drawing.Font("Microsoft Sans Serif", 36F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.listBoxFavs.FormattingEnabled = true;
-            this.listBoxFavs.ItemHeight = 55;
-            this.listBoxFavs.Location = new System.Drawing.Point(12, 12);
-            this.listBoxFavs.Name = "listBoxFavs";
-            this.listBoxFavs.Size = new System.Drawing.Size(476, 554);
-            this.listBoxFavs.TabIndex = 0;
-            this.listBoxFavs.KeyDown += new System.Windows.Forms.KeyEventHandler(this.listBoxFavs_KeyDown);
+            this._pictDown.BackgroundImage = global::XBMC_WebBrowser.Properties.Resources.SubMenuBack_Footer2;
+            this._pictDown.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this._pictDown.Location = new System.Drawing.Point(0, 96);
+            this._pictDown.Name = "_pictDown";
+            this._pictDown.Size = new System.Drawing.Size(256, 32);
+            this._pictDown.TabIndex = 5;
+            this._pictDown.TabStop = false;
+            // 
+            // _pictUp
+            // 
+            this._pictUp.BackgroundImage = global::XBMC_WebBrowser.Properties.Resources.SubMenuBack_Header;
+            this._pictUp.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this._pictUp.Location = new System.Drawing.Point(0, 0);
+            this._pictUp.Name = "_pictUp";
+            this._pictUp.Size = new System.Drawing.Size(256, 32);
+            this._pictUp.TabIndex = 4;
+            this._pictUp.TabStop = false;
+            // 
+            // _btn_AddCurrent
+            // 
+            this._btn_AddCurrent.BackgroundImage = global::XBMC_WebBrowser.Properties.Resources.SubMenuBack_ButtonNoFocus;
+            this._btn_AddCurrent.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
+            this._btn_AddCurrent.FlatAppearance.BorderSize = 0;
+            this._btn_AddCurrent.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
+            this._btn_AddCurrent.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
+            this._btn_AddCurrent.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this._btn_AddCurrent.Font = new System.Drawing.Font("Arial", 21.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this._btn_AddCurrent.ForeColor = System.Drawing.Color.White;
+            this._btn_AddCurrent.Location = new System.Drawing.Point(0, 32);
+            this._btn_AddCurrent.Name = "_btn_AddCurrent";
+            this._btn_AddCurrent.Size = new System.Drawing.Size(256, 64);
+            this._btn_AddCurrent.TabIndex = 9;
+            this._btn_AddCurrent.Text = "+ Aktuelle";
+            this._btn_AddCurrent.UseVisualStyleBackColor = true;
+            this._btn_AddCurrent.Click += new System.EventHandler(this.button_Click);
+            this._btn_AddCurrent.Enter += new System.EventHandler(this.button_Enter);
+            this._btn_AddCurrent.Leave += new System.EventHandler(this.button_Leave);
+            this._btn_AddCurrent.MouseEnter += new System.EventHandler(this.button_MouseEnter);
+            this._btn_AddCurrent.MouseLeave += new System.EventHandler(this.button_MouseLeave);
             // 
             // FormFavourites
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Snow;
-            this.ClientSize = new System.Drawing.Size(500, 600);
-            this.Controls.Add(this.listBoxFavs);
+            this.BackgroundImage = global::XBMC_WebBrowser.Properties.Resources.SubMenuBack_MiddleNF;
+            this.ClientSize = new System.Drawing.Size(256, 128);
+            this.Controls.Add(this._btn_AddCurrent);
+            this.Controls.Add(this._pictDown);
+            this.Controls.Add(this._pictUp);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "FormFavourites";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "FormFavourites";
             this.TransparencyKey = System.Drawing.Color.Snow;
+            this.Load += new System.EventHandler(this.FormFavourites_Load);
+            ((System.ComponentModel.ISupportInitialize)(this._pictDown)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this._pictUp)).EndInit();
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        public System.Windows.Forms.ListBox listBoxFavs;
+        private System.Windows.Forms.PictureBox _pictDown;
+        private System.Windows.Forms.PictureBox _pictUp;
+        private System.Windows.Forms.Button _btn_AddCurrent;
+
 
 
 

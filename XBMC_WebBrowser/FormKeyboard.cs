@@ -9,250 +9,446 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
+using System.IO;
 
 namespace XBMC_WebBrowser
 {
     public partial class FormKeyboard : Form
     {
-        private ArrayList allKeys;
-        private bool specialKeyPressed;
-        private String startText;
-        private Button lastButtonTop, lastButtonBottom;
+        [DllImport("user32.dll")]
+        static extern int MapVirtualKey(uint uCode, uint uMapType);
+        [DllImport("user32.dll")]
+        public static extern int ToUnicode(uint virtualKeyCode, uint scanCode,
+            byte[] keyboardState,
+            [Out, MarshalAs(UnmanagedType.LPWStr, SizeConst = 64)]
+    StringBuilder receivingBuffer,
+            int bufferSize, uint flags);
 
-        public FormKeyboard(String title, String startText, Boolean inputEnabled, ArrayList allKeys)
+        private Dictionary<String, String> _keyboardLayout = new Dictionary<string, string>();
+        private bool specialKeyPressed;
+        private bool _shiftClicked = false;
+        private String _startText;
+        private String _userDataFolder = "";
+
+        public FormKeyboard(String title, String startText, Boolean inputEnabled, String userDataFolder)
         {
-            InitializeComponent();
-            this.labelTitle.Text = title;
-            this.startText = startText;
-            this.allKeys = allKeys;
+            InitializeComponent();        
+            _userDataFolder = userDataFolder;
+            //load keyboard layout
+            importKeyboardLayout();
+            fillLayout(false);
+            addKeyboardLayoutFunctions();
+            //set defaults
+            this.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this._lblTitle.Text = title;
+            this._startText = startText;
             specialKeyPressed = false;
-            textBox1.Text = startText;
-            lastButtonTop = button0;
+            _txtText.Text = _startText;
+            //read only?
             if (!inputEnabled)
             {
-                textBox1.ReadOnly = true;
-                textBox1.TabStop = false;
+                _txtText.ReadOnly = true;
+                _txtText.TabStop = false;
             }
-            buttonsToLower();
-        } 
+            //cursor to last position
+            _txtText.Select(_txtText.Text.Length, 0);
+            //special buttons
+            _btn_Shift.ForeColor = Color.FromArgb(85, 85, 85);
+            _btn_Delete.ForeColor = Color.FromArgb(85, 85, 85);
+            _btn_RemoveAll.ForeColor = Color.FromArgb(85, 85, 85);
+            _btn_Space.ForeColor = Color.FromArgb(85, 85, 85);
+            _btn_Enter.ForeColor = Color.FromArgb(85, 85, 85);
+            _txtText.ForeColor = Color.FromArgb(85, 85, 85);
+
+        }
+
+        private void importKeyboardLayout()
+        {
+            _keyboardLayout.Clear();
+            if (!File.Exists(_userDataFolder + "\\keyboardLayout"))
+                return;
+            StreamReader str = new StreamReader(_userDataFolder+"\\keyboardLayout",Encoding.UTF8);
+            String line;
+            while ((line = str.ReadLine()) != null)
+            {
+                if (line.Contains("=") && !line.StartsWith("["))
+                {
+                    String[] spl = line.Split('=');
+                    _keyboardLayout.Add(spl[0], spl[1].Trim());
+                }
+            }
+        }
+
+        private void fillLayout(bool useUpper)
+        {
+            foreach (Control ctrl in this.Controls)
+            {
+                if (ctrl.Name.StartsWith("_btn_kb_"))
+                {
+                    Button btn = ctrl as Button;
+                    if (btn != null)
+                    {
+                        String btnName = btn.Name;
+                        btnName = btnName.Replace("_btn_kb_","");
+                        if (useUpper)
+                            btnName += "_u";
+                        if (_keyboardLayout.ContainsKey(btnName))
+                            btn.Text = _keyboardLayout[btnName];
+                        else
+                            btn.Text = btnName;
+                    }
+                }
+            }
+        }
+
+        private void addKeyboardLayoutFunctions()
+        {
+            foreach (Control ctrl in this.Controls)
+            {
+                if (ctrl.Name.StartsWith("_btn_kb_"))
+                {
+                    Button btn = ctrl as Button;
+                    if (btn != null)
+                    {
+                        btn.ForeColor = Color.FromArgb(85, 85, 85);
+                        //removal is needed because of IDE inhomgency (some buttons have, some doesn't)
+                        btn.Click -= button_Click;
+                        btn.Click += button_Click;
+                        btn.Enter -= button_Enter;
+                        btn.Enter += button_Enter;
+                        btn.Leave -= button_Leave;
+                        btn.Leave += button_Leave;
+                        btn.KeyDown -= button_KeyDown;
+                        btn.KeyDown += button_KeyDown;
+                        btn.PreviewKeyDown -= button_PreviewKeyDown;
+                        btn.PreviewKeyDown += button_PreviewKeyDown;
+                        btn.MouseEnter -= button_MouseEnter;
+                        btn.MouseEnter += button_MouseEnter;
+                        btn.MouseLeave -= button_MouseLeave;
+                        btn.MouseLeave += button_MouseLeave;
+                    }
+                }
+            }
+        }
 
         private void textBox1_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter)
-                this.Close();
-            else if (e.KeyCode == Keys.Up)
-                specialKeyPressed = true;
-            else if (e.KeyCode == Keys.Down)
+            if (XWKeys.getInstance().keyMapClick.Contains(e.KeyCode.ToString()))
             {
-                specialKeyPressed = true;
-                lastButtonTop.Focus();
+                this.DialogResult = DialogResult.OK;
+                this.Close();
             }
-            else if (allKeys.Contains(e.KeyCode.ToString()))
-                specialKeyPressed = true;
-            else
-                specialKeyPressed = false;
+            else if (XWKeys.getInstance().keyMapDown.Contains(e.KeyCode.ToString())
+                || XWKeys.getInstance().keyMapUp.Contains(e.KeyCode.ToString())
+                || XWKeys.getInstance().keyMapRight.Contains(e.KeyCode.ToString())
+                || XWKeys.getInstance().keyMapLeft.Contains(e.KeyCode.ToString())
+            )
+            {
+                _btn_kb_a_1.Focus();
+                e.Handled = true;
+            }
         }
 
-        private void textBox1_KeyPress(object sender, KeyPressEventArgs e)
+        private void button_MouseLeave(object sender, EventArgs e)
         {
-            if (specialKeyPressed)
-                e.Handled = true;
+            Button btn = sender as Button;
+            if (btn == null || btn.Focused)
+                return;
+
+            button_Leave(sender, e);
+        }
+
+        private void button_MouseEnter(object sender, EventArgs e)
+        {
+            Button btn = sender as Button;
+            if (btn == null || btn.Focused)
+                return;
+
+            if (btn.Name == "_btn_Shift")
+            {
+                btn.BackgroundImage = Properties.Resources.button_shift_hover;
+            }
+            else if (btn.Name == "_btn_RemoveAll")
+            {
+                btn.BackgroundImage = Properties.Resources.button_hover_146;
+            }
+            else if (btn.Name == "_btn_Space")
+            {
+                btn.BackgroundImage = Properties.Resources.button_hover_449;
+            }
+            else if (btn.Name == "_btn_Delete")
+            {
+                btn.BackgroundImage = Properties.Resources.button_delete_hover;
+            }
+            else if (btn.Name == "_btn_Enter")
+            {
+                btn.BackgroundImage = Properties.Resources.button_hover_906;
+            }
+            else
+            {
+                btn.BackgroundImage = Properties.Resources.button_hover;
+            }
+            btn.ForeColor = Color.FromArgb(85, 85, 85);
         }
 
         private void button_Click(object sender, EventArgs e)
         {
-            String text = ((Button)sender).Text.ToLower();
-            if (text == "space")
+            Button btn = sender as Button;
+            if (btn == null)
+                return;
+
+            if (btn.Name == "_btn_Space")
             {
-                textBox1.Text += " ";
-                textBox1.SelectionStart = textBox1.Text.Length;
+                _txtText.Text += " ";
+                _txtText.SelectionStart = _txtText.Text.Length;
             }
-            else if (text == "shift")
+            else if (btn.Name == "_btn_Shift")
             {
-                buttonsToUpper();
+                shiftClicked();
             }
-            else if (text == "remove")
+            else if (btn.Name == "_btn_Delete")
             {
-                if (textBox1.Text.Length > 0)
+                if (_txtText.Text.Length > 0)
                 {
-                    textBox1.Text = textBox1.Text.Substring(0, textBox1.Text.Length - 1);
-                    textBox1.SelectionStart = textBox1.Text.Length;
+                    _txtText.Text = _txtText.Text.Substring(0, _txtText.Text.Length - 1);
+                    _txtText.SelectionStart = _txtText.Text.Length;
                 }
             }
-            else if (text == "remove all")
+            else if (btn.Name == "_btn_RemoveAll")
             {
-                textBox1.Text = startText;
-                textBox1.SelectionStart = textBox1.Text.Length;
+                _txtText.Text = _startText;
+                _txtText.SelectionStart = _txtText.Text.Length;
             }
-            else if (text == "enter")
+            else if (btn.Name == "_btn_Enter")
+            {
+                this.DialogResult = DialogResult.OK;
                 this.Close();
+            }
             else
             {
-                textBox1.Text += ((Button)sender).Text;
-                textBox1.SelectionStart = textBox1.Text.Length;
-                buttonsToLower();
+                _txtText.Text += ((Button)sender).Text;
+                _txtText.SelectionStart = _txtText.Text.Length;
+                if (_shiftClicked) shiftClicked();
             }
         }
 
         private void button_Enter(object sender, EventArgs e)
         {
-            ((Button)sender).BackColor = Color.Black;
-            ((Button)sender).ForeColor = Color.WhiteSmoke;
+            Button btn = ((Button)sender);
+            if (btn == null) return;
+            if (btn.Name == "_btn_Shift")
+            {
+                btn.BackgroundImage = Properties.Resources.button_shift_active;
+            }
+            else if (btn.Name == "_btn_RemoveAll")
+            {
+                btn.BackgroundImage = Properties.Resources.button_active_146;
+            }
+            else if (btn.Name == "_btn_Space")
+            {
+                btn.BackgroundImage = Properties.Resources.button_active_449;
+            }
+            else if (btn.Name == "_btn_Delete")
+            {
+                btn.BackgroundImage = Properties.Resources.button_delete_active;
+            }
+            else if (btn.Name == "_btn_Enter")
+            {
+                btn.BackgroundImage = Properties.Resources.button_active_906;
+            }
+            else
+            {
+                btn.BackgroundImage = Properties.Resources.button_active;
+            }
+            btn.ForeColor = Color.FromArgb(255, 255, 255);
         }
 
         private void button_Leave(object sender, EventArgs e)
         {
-            ((Button)sender).BackColor = Color.WhiteSmoke;
-            ((Button)sender).ForeColor = Color.Black;
+            Button btn = ((Button)sender);
+            if (btn == null) return;
+            if ((btn.Name == "_btn_Shift") && _shiftClicked)
+                return;
+            if (btn.Name == "_btn_Shift")
+            {
+                btn.BackgroundImage = Properties.Resources.button_shift_normal;
+            }
+            else if (btn.Name == "_btn_RemoveAll")
+            {
+                btn.BackgroundImage = Properties.Resources.button_normal_146;
+            }
+            else if (btn.Name == "_btn_Space")
+            {
+                btn.BackgroundImage = Properties.Resources.button_normal_449;
+            }
+            else if (btn.Name == "_btn_Delete")
+            {
+                btn.BackgroundImage = Properties.Resources.button_delete_normal;
+            }
+            else if (btn.Name == "_btn_Enter")
+            {
+                btn.BackgroundImage = Properties.Resources.button_normal_906;
+            }
+            else
+            {
+                btn.BackgroundImage = Properties.Resources.button_normal;
+            }
+            btn.ForeColor = Color.FromArgb(85, 85, 85);
         }
 
         private void button_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Back)
+            Button btn = sender as Button;
+            if (btn == null)
+                return;
+
+            Boolean isKeyboardButton = false;
+            if (btn.Name.StartsWith("_btn_kb_"))
+                isKeyboardButton = true;
+
+            String row = "", column = "";
+            if (isKeyboardButton)
             {
-                if (textBox1.Text.Length > 0)
+                String[] spl = btn.Name.Replace("_btn_kb_", "").Split('_');
+                row = spl[0];
+                column = spl[1];
+            }
+
+            if (XWKeys.getInstance().keyMapDelete.Contains(e.KeyCode.ToString()))
+            {
+                if (_txtText.Text.Length > 0)
                 {
-                    textBox1.Text = textBox1.Text.Substring(0, textBox1.Text.Length - 1);
-                    textBox1.SelectionStart = textBox1.Text.Length;
+                    _txtText.Text = _txtText.Text.Substring(0, _txtText.Text.Length - 1);
+                    _txtText.SelectionStart = _txtText.Text.Length;
                 }
             }
 
-            else if (e.KeyCode == Keys.Down)
+            else if (XWKeys.getInstance().keyMapDown.Contains(e.KeyCode.ToString()))
             {
-                if (ActiveControl is Button)
+                if (isKeyboardButton && row != "e")
                 {
-                    String[] spl = ((Button)sender).Tag.ToString().Split(',');
-                    int x = Convert.ToInt32(spl[1]);
-                    int y = Convert.ToInt32(spl[0]);
-
-                    if (y == 4)
+                    char row_c = (char)row[0];
+                    row_c++;
+                    Button next = this.Controls["_btn_kb_" + row_c.ToString() + "_" + column] as Button;
+                    if (next != null)
                     {
-                        lastButtonBottom = (Button)sender;
-                        buttonSpace.Focus();
+                        next.Focus();
                     }
-                    else if (y == 5)
-                        buttonEnter.Focus();
-
+                }
+                else if (isKeyboardButton && row == "e")
+                {
+                    if (Convert.ToInt32(column) <= 3)
+                        _btn_Shift.Focus();
+                    else if (Convert.ToInt32(column) <= 7)
+                        _btn_Space.Focus();
+                    else if (Convert.ToInt32(column) <= 10)
+                        _btn_RemoveAll.Focus();
                     else
-                    {
-                        foreach (Control control in this.Controls)
-                        {
-                            if (control is Button)
-                            {
-                                try
-                                {
-                                    String[] spl2 = ((Button)control).Tag.ToString().Split(',');
-                                    int xNew = Convert.ToInt32(spl2[1]);
-                                    int yNew = Convert.ToInt32(spl2[0]);
-                                    if ((x == xNew) && ((y + 1) == yNew))
-                                        ((Button)control).Focus();
-                                }
-                                catch
-                                {
-                                }
-                            }
-                        }
-                    }
+                        _btn_Delete.Focus();
                 }
-            }
-            else if (e.KeyCode == Keys.Up)
-            {
-                if (ActiveControl is Button)
+                else
                 {
-                    String[] spl = ((Button)sender).Tag.ToString().Split(',');
-                    int x = Convert.ToInt32(spl[1]);
-                    int y = Convert.ToInt32(spl[0]);
-
-                    if (y == 0 && textBox1.TabStop)
-                    {
-                        textBox1.Focus();
-                        lastButtonTop = (Button)sender;
-                    }
-                    if (y == 5)
-                        lastButtonBottom.Focus();
-                    else if (y == 6)
-                        buttonSpace.Focus();
+                    if (btn.Name != "_btn_Enter")
+                        _btn_Enter.Focus();
                     else
+                        _btn_kb_a_1.Focus();
+                }
+            }
+            else if (XWKeys.getInstance().keyMapUp.Contains(e.KeyCode.ToString()))
+            {
+                if (isKeyboardButton && row != "a")
+                {
+                    char row_c = (char)row[0];
+                    row_c--;
+                    Button next = this.Controls["_btn_kb_" + row_c.ToString() + "_" + column] as Button;
+                    if (next != null)
                     {
-                        foreach (Control control in this.Controls)
-                        {
-                            if (control is Button)
-                            {
-                                try
-                                {
-                                    String[] spl2 = ((Button)control).Tag.ToString().Split(',');
-                                    int xNew = Convert.ToInt32(spl2[1]);
-                                    int yNew = Convert.ToInt32(spl2[0]);
-                                    if (x == xNew && ((y - 1) == yNew))
-                                        ((Button)control).Focus();
-                                }
-                                catch
-                                {
-                                }
-                            }
-                        }
+                        next.Focus();
+                    }
+                }
+                else if (isKeyboardButton && row == "a")
+                {
+                    _btn_Enter.Focus();
+                }
+                else
+                {
+                    switch (btn.Name)
+                    {
+                        case "_btn_Shift": _btn_kb_e_1.Focus(); break;
+                        case "_btn_Space": _btn_kb_e_3.Focus(); break;
+                        case "_btn_RemoveAll": _btn_kb_e_9.Focus(); break;
+                        case "_btn_Delete": _btn_kb_e_11.Focus(); break;
+                        case "_btn_Enter": _btn_Space.Focus(); break;
                     }
                 }
             }
-            else if (e.KeyCode == Keys.Right)
+            else if (XWKeys.getInstance().keyMapRight.Contains(e.KeyCode.ToString()))
             {
-                if (ActiveControl is Button)
+                if (isKeyboardButton && column != "12")
                 {
-                    String[] spl = ((Button)sender).Tag.ToString().Split(',');
-                    int x = Convert.ToInt32(spl[1]);
-                    int y = Convert.ToInt32(spl[0]);
-
-                    foreach (Control control in this.Controls)
+                    int column_i = Convert.ToInt32(column);
+                    column_i++;
+                    Button next = this.Controls["_btn_kb_" + row + "_" + column_i.ToString()] as Button;
+                    if (next != null)
                     {
-                        if (control is Button)
-                        {
-                            try
-                            {
-                                String[] spl2 = ((Button)control).Tag.ToString().Split(',');
-                                int xNew = Convert.ToInt32(spl2[1]);
-                                int yNew = Convert.ToInt32(spl2[0]);
-                                int mod = 10;
-                                if (y == 5)
-                                    mod = 3;
-                                if (((x + 1) % mod == xNew) && y == yNew)
-                                    ((Button)control).Focus();
-                            }
-                            catch
-                            {
-                            }
-                        }
+                        next.Focus();
+                    }
+                }
+                else if (isKeyboardButton && column == "12")
+                {
+                    Button next = this.Controls["_btn_kb_" + row + "_" + "1"] as Button;
+                    if (next != null)
+                    {
+                        next.Focus();
+                    }
+                }
+                else 
+                {
+                    switch (btn.Name)
+                    {
+                        case "_btn_Shift": _btn_Space.Focus(); break;
+                        case "_btn_Space": _btn_RemoveAll.Focus(); break;
+                        case "_btn_RemoveAll": _btn_Delete.Focus(); break;
+                        case "_btn_Delete": _btn_Shift.Focus(); break;
+                        case "_btn_Enter": _btn_Enter.Focus(); break;
                     }
                 }
             }
-            else if (e.KeyCode == Keys.Left)
+            else if (XWKeys.getInstance().keyMapLeft.Contains(e.KeyCode.ToString()))
             {
-                if (ActiveControl is Button)
+                if (isKeyboardButton && column != "1")
                 {
-                    String[] spl = ((Button)sender).Tag.ToString().Split(',');
-                    int x = Convert.ToInt32(spl[1]);
-                    int y = Convert.ToInt32(spl[0]);
-
-                    foreach (Control control in this.Controls)
+                    int column_i = Convert.ToInt32(column);
+                    column_i--;
+                    Button next = this.Controls["_btn_kb_" + row + "_" + column_i.ToString()] as Button;
+                    if (next != null)
                     {
-                        if (control is Button)
-                        {
-                            try
-                            {
-                                String[] spl2 = ((Button)control).Tag.ToString().Split(',');
-                                int xNew = Convert.ToInt32(spl2[1]);
-                                int yNew = Convert.ToInt32(spl2[0]);
-                                int mod = 10;
-                                if (y == 5)
-                                    mod = 3;
-                                if (((x + mod - 1) % mod == xNew) && y == yNew)
-                                    ((Button)control).Focus();
-                            }
-                            catch
-                            {
-                            }
-                        }
+                        next.Focus();
                     }
                 }
+                else if (isKeyboardButton && column == "1")
+                {
+                    Button next = this.Controls["_btn_kb_" + row + "_" + "12"] as Button;
+                    if (next != null)
+                    {
+                        next.Focus();
+                    }
+                }
+                else
+                {
+                    switch (btn.Name)
+                    {
+                        case "_btn_Shift": _btn_Delete.Focus(); break;
+                        case "_btn_Space": _btn_Shift.Focus(); break;
+                        case "_btn_RemoveAll": _btn_Space.Focus(); break;
+                        case "_btn_Delete": _btn_RemoveAll.Focus(); break;
+                        case "_btn_Enter": _btn_Enter.Focus(); break;
+                    }
+                }
+            }
+            else if (XWKeys.getInstance().keyMapClick.Contains(e.KeyCode.ToString()))
+            {
+                button_Click(sender, e);
             }
         }
 
@@ -264,47 +460,101 @@ namespace XBMC_WebBrowser
             }
         }
 
-        private void buttonsToLower()
+        private void shiftClicked()
         {
-            foreach (Control control in this.Controls)
+            if (_shiftClicked)
             {
-                if (control is Button)
-                {
-                    String[] spl = ((Button)control).Tag.ToString().Split(',');
-                    int y = Convert.ToInt32(spl[0]);
-                    if (y < 4)
-                    {
-                        try
-                        {
-                            ((Button)control).Text = ((Button)control).Text.ToLower();
-                        }
-                        catch
-                        {
-                        }
-                    }
-                }
+                _shiftClicked = false;
+                _btn_Shift.BackgroundImage = Properties.Resources.button_shift_normal;
+
+                fillLayout(false);
+            }
+            else
+            {
+                _shiftClicked = true;
+                _btn_Shift.BackgroundImage = Properties.Resources.button_shift_active;
+                fillLayout(true);
             }
         }
 
-        private void buttonsToUpper()
+        private void FormKeyboard_Load(object sender, EventArgs e)
         {
-            foreach (Control control in this.Controls)
+            this.SetStyle(System.Windows.Forms.ControlStyles.SupportsTransparentBackColor, true);
+            this.BackColor = System.Drawing.Color.Transparent;
+
+            _btn_kb_a_1.Focus();
+        }
+
+        private void HandleSpecialKeys(Keys keyData)
+        {
+            String keys = keyData.ToString();
+
+            //Close?
+            if (XWKeys.getInstance().keyMapClose.Contains(keys))
             {
-                if (control is Button)
+                this.Close();
+                return;
+            }
+
+            //Durchreichen an die Buttons
+            if (this.ActiveControl.GetType() == typeof(Button))
+            {
+                button_KeyDown(this.ActiveControl, new KeyEventArgs(keyData));
+            }
+            //Durchreichen an die Textbox
+            else if (this.ActiveControl.GetType() == typeof(TextBox))
+            {
+                textBox1_KeyDown(this.ActiveControl, new KeyEventArgs(keyData));
+            }
+        }
+
+        static string GetCharsFromKeys(Keys keys, bool shift, bool altGr)
+        {
+            var buf = new StringBuilder(256);
+            var keyboardState = new byte[256];
+            if (shift)
+                keyboardState[(int)Keys.ShiftKey] = 0xff;
+            if (altGr)
+            {
+                keyboardState[(int)Keys.ControlKey] = 0xff;
+                keyboardState[(int)Keys.Menu] = 0xff;
+            }
+            ToUnicode((uint)keys, 0, keyboardState, buf, 256, 0);
+            return buf.ToString();
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyDaya)
+        {
+            //sConsole.WriteLine("FormContextMenu PCommK | Msg: '" + msg.Msg.ToString() + "' | Key-Data: '" + keyDaya.ToString() + "' | W-Param: '" + msg.WParam.ToInt32().ToString() + "' | L-Param: '" + msg.LParam.ToInt32().ToString() + "'");
+            if (XWKeys.getInstance().AllKeys.Contains(keyDaya.ToString()))
+            {
+                HandleSpecialKeys(keyDaya);
+                return true;
+            }
+            //Kein Special-Char? Dann ab damit ins Textfeld!
+            else
+            {               
+                //Delete
+                if (msg.WParam.ToInt32() == 8)
                 {
-                    String[] spl = ((Button)control).Tag.ToString().Split(',');
-                    int y = Convert.ToInt32(spl[0]);
-                    if (y < 4)
+                    if (_txtText.Text.Length > 0)
                     {
-                        try
-                        {
-                            ((Button)control).Text = ((Button)control).Text.ToUpper();
-                        }
-                        catch
-                        {
-                        }
+                        _txtText.Text = _txtText.Text.Substring(0, _txtText.Text.Length - 1);
+                        _txtText.SelectionStart = _txtText.Text.Length;
+                        return true;
                     }
                 }
+                //Printbare
+                else if (msg.WParam.ToInt32() >= 31)
+                {
+                    bool shift = false;
+                    bool altgr = false;
+                    if (keyDaya.ToString().Contains("Shift")) shift = true;
+                    if (keyDaya.ToString().Contains("Alt") && keyDaya.ToString().Contains("Control")) altgr = true;
+                    _txtText.AppendText(GetCharsFromKeys(keyDaya, shift, altgr));
+                    return true;
+                }    
+                return base.ProcessCmdKey(ref msg, keyDaya);
             }
         }
     }

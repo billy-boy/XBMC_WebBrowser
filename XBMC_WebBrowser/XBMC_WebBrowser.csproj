@@ -12,6 +12,21 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
+    <PublishUrl>veröffentlichen\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -41,6 +56,12 @@
     <OutputPath>bin\x86\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AlphaBlendTextBox">
+      <HintPath>lib\AlphaBlendTextBox\AlphaBlendTextBox.dll</HintPath>
+    </Reference>
+    <Reference Include="MRG.Controls.UI">
+      <HintPath>lib\MRG.Controls.UI\MRG.Controls.UI.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -58,6 +79,12 @@
     </Compile>
     <Compile Include="FormContextMenu.Designer.cs">
       <DependentUpon>FormContextMenu.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormInfo.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormInfo.Designer.cs">
+      <DependentUpon>FormInfo.cs</DependentUpon>
     </Compile>
     <Compile Include="FormLogin.cs">
       <SubType>Form</SubType>
@@ -110,8 +137,19 @@
     <Compile Include="ListBoxEntry.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings.cs" />
+    <Compile Include="XWFavourite.cs" />
+    <Compile Include="XWFavouriteList.cs" />
+    <Compile Include="XWKeyList.cs" />
+    <Compile Include="XWKeys.cs" />
+    <Compile Include="XWMagnifier.cs" />
+    <Compile Include="XWShortcut.cs" />
+    <Compile Include="XWShortcutList.cs" />
     <EmbeddedResource Include="FormContextMenu.resx">
       <DependentUpon>FormContextMenu.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormInfo.resx">
+      <DependentUpon>FormInfo.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FormLogin.resx">
       <DependentUpon>FormLogin.cs</DependentUpon>
@@ -179,9 +217,153 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="Resources\identity-icons-generic.png" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="Resources\cursorBlue.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\identity-icons-https.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\identity-icons-https-ev.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\background.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\https.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.0">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4 %28x86 und x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.4.5">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 4.5</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\globe.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\button_hover.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\button_normal.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\button_active.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\button_active_222.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\button_hover_222.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\button_normal_222.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\button_active_146.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\button_active_298.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\button_active_906.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\button_hover_146.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\button_hover_298.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\button_hover_906.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\button_normal_146.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\button_normal_298.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\button_normal_906.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\background_keyboard.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\button_delete_active.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\button_delete_hover.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\button_delete_normal.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\button_shift_active.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\button_shift_hover.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\button_shift_normal.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\button_active_449.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\button_hover_449.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\button_normal_449.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\InfoMessagePanel.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\InfoMessagePanel_Down.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\ContentPanel.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\SubMenuBack-ButtonFocus.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\SubMenuBack-ButtonNoFocus.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\SubMenuBack-Footer.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\SubMenuBack-Header.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\SubMenuBack-MiddleNF.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\SubMenuBack-Footer2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="readme.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
