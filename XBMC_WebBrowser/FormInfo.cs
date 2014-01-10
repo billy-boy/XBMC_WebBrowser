@@ -13,7 +13,7 @@ namespace XBMC_WebBrowser
 
     public partial class FormInfo : Form
     {
-        private InfoType _infoType
+        private InfoType _infoType;
 
         public FormInfo(InfoType infoType)
         {

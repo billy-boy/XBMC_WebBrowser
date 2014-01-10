@@ -21,6 +21,8 @@ namespace XBMC_WebBrowser
         {
             //this.SetStyle(System.Windows.Forms.ControlStyles.SupportsTransparentBackColor, true);
             //this.BackColor = System.Drawing.Color.Transparent;
+            this.TransparencyKey = Color.White;
+            this.DoubleBuffered = true;
         }
     }
 }

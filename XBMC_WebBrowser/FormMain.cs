@@ -765,12 +765,11 @@ namespace XBMC_WebBrowser
             if (formFavourites == null)
             {
                 XWFavouriteList.getInstance().loadFavourites(userDataFolder);
-                if (XWFavouriteList.getInstance().Count <= 0)
-                {
-                    //TODO: ERROR
-                }
-                else
-                {
+                //if (XWFavouriteList.getInstance().Count <= 0)
+                //{
+                //}
+                //else
+                //{
                     formFavourites = new FormFavourites(userDataFolder, webBrowser1.Url.ToString());
                     if (formFavourites.ShowDialog() == DialogResult.OK)
                     {
@@ -780,7 +779,7 @@ namespace XBMC_WebBrowser
                         navigate(favorit.URL);
                     }
                     formFavourites = null;
-                }
+                //}
             }
             else
             {
@@ -797,17 +796,16 @@ namespace XBMC_WebBrowser
                 if (mainURL.IndexOf("/") >= 0)
                     mainURL = mainURL.Substring(0, mainURL.IndexOf("/"));
                 XWShortcutList.getInstance(mainURL).loadShortcuts(userDataFolder);
-                if (XWShortcutList.getInstance(mainURL).Count <= 0)
-                {
-                    //TODO: ERROR
-                }
-                else
-                {
+                //if (XWShortcutList.getInstance(mainURL).Count <= 0)
+                //{
+                //}
+                //else
+                //{
                     formShortcuts = new FormShortcuts(userDataFolder, mainURL, webBrowser1.Url.ToString());
                     if (formShortcuts.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                         webBrowser1.Navigate(formShortcuts.Shortcut.URL);
                     formShortcuts = null;
-                }
+                //}
             }
             else
             {

@@ -37,12 +37,10 @@
             this.BackColor = System.Drawing.Color.White;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             this.ClientSize = new System.Drawing.Size(64, 64);
-            this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "FormCursor";
             this.Text = "FormCursor";
             this.TopMost = true;
-            this.TransparencyKey = System.Drawing.Color.White;
             this.Load += new System.EventHandler(this.FormCursor_Load);
             this.ResumeLayout(false);
 
