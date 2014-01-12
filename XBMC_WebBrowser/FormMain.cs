@@ -302,7 +302,6 @@ namespace XBMC_WebBrowser
         {
             try
             {
-                String keys = keyData.ToString();
                 //String keys = "";
                 //foreach (int i in Enum.GetValues(typeof(Keys)))
                 //{
@@ -311,15 +310,9 @@ namespace XBMC_WebBrowser
                 //        keys += Enum.GetName(typeof(Keys), i) + " ";
                 //    }
                 //}
-                keys = keys.Trim();
-                if (keys.StartsWith("ShiftKey "))
-                    keys = keys.Substring(9);
-                if (keys.StartsWith("Menu "))
-                    keys = keys.Substring(5);
-
-                if (keys != "")
+                if (keyData != Keys.None)
                 {
-                    if (XWKeys.getInstance().keyMapLeft.Contains(keys))
+                    if (XWKeys.getInstance().keyMapLeft.Contains(keyData))
                     {
                         if (mouseEnabled)
                         {
@@ -333,7 +326,7 @@ namespace XBMC_WebBrowser
                         else
                             webBrowser1.Navigate("javascript:window.scrollBy(-" + scrollSpeed + ", 0);");
                     }
-                    else if (XWKeys.getInstance().keyMapUp.Contains(keys))
+                    else if (XWKeys.getInstance().keyMapUp.Contains(keyData))
                     {
                         if (mouseEnabled)
                         {
@@ -347,7 +340,7 @@ namespace XBMC_WebBrowser
                         else
                             webBrowser1.Navigate("javascript:window.scrollBy(0, -" + scrollSpeed + ");");
                     }
-                    else if (XWKeys.getInstance().keyMapRight.Contains(keys))
+                    else if (XWKeys.getInstance().keyMapRight.Contains(keyData))
                     {
                         if (mouseEnabled)
                         {
@@ -361,7 +354,7 @@ namespace XBMC_WebBrowser
                         else
                             webBrowser1.Navigate("javascript:window.scrollBy(" + scrollSpeed + ", 0);");
                     }
-                    else if (XWKeys.getInstance().keyMapDown.Contains(keys))
+                    else if (XWKeys.getInstance().keyMapDown.Contains(keyData))
                     {
                         if (mouseEnabled)
                         {
@@ -375,7 +368,7 @@ namespace XBMC_WebBrowser
                         else
                             webBrowser1.Navigate("javascript:window.scrollBy(0, " + scrollSpeed + ");");
                     }
-                    else if (XWKeys.getInstance().keyMapUpLeft.Contains(keys))
+                    else if (XWKeys.getInstance().keyMapUpLeft.Contains(keyData))
                     {
                         if (mouseEnabled)
                         {
@@ -391,7 +384,7 @@ namespace XBMC_WebBrowser
                         else
                             webBrowser1.Navigate("javascript:window.scrollBy(-" + scrollSpeed + ", -" + scrollSpeed + ");");
                     }
-                    else if (XWKeys.getInstance().keyMapUpRight.Contains(keys))
+                    else if (XWKeys.getInstance().keyMapUpRight.Contains(keyData))
                     {
                         if (mouseEnabled)
                         {
@@ -407,7 +400,7 @@ namespace XBMC_WebBrowser
                         else
                             webBrowser1.Navigate("javascript:window.scrollBy(" + scrollSpeed + ", -" + scrollSpeed + ");");
                     }
-                    else if (XWKeys.getInstance().keyMapDownLeft.Contains(keys))
+                    else if (XWKeys.getInstance().keyMapDownLeft.Contains(keyData))
                     {
                         if (mouseEnabled)
                         {
@@ -423,7 +416,7 @@ namespace XBMC_WebBrowser
                         else
                             webBrowser1.Navigate("javascript:window.scrollBy(-" + scrollSpeed + ", " + scrollSpeed + ");");
                     }
-                    else if (XWKeys.getInstance().keyMapDownRight.Contains(keys))
+                    else if (XWKeys.getInstance().keyMapDownRight.Contains(keyData))
                     {
                         if (mouseEnabled)
                         {
@@ -439,16 +432,16 @@ namespace XBMC_WebBrowser
                         else
                             webBrowser1.Navigate("javascript:window.scrollBy(" + scrollSpeed + ", " + scrollSpeed + ");");
                     }
-                    else if (XWKeys.getInstance().keyMapClick.Contains(keys))
+                    else if (XWKeys.getInstance().keyMapClick.Contains(keyData))
                     {
                         mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
                         mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
                     }
-                    else if (XWKeys.getInstance().keyMapDoubleClick.Contains(keys))
+                    else if (XWKeys.getInstance().keyMapDoubleClick.Contains(keyData))
                     {
                         doubleClick();
                     }
-                    else if (XWKeys.getInstance().keyMapClose.Contains(keys))
+                    else if (XWKeys.getInstance().keyMapClose.Contains(keyData))
                     {
                         if (formPopup != null)
                         {
@@ -496,7 +489,7 @@ namespace XBMC_WebBrowser
                             Application.Exit();
                         }
                     }
-                    else if (XWKeys.getInstance().keyMapZoomIn.Contains(keys))
+                    else if (XWKeys.getInstance().keyMapZoomIn.Contains(keyData))
                     {
                         if (formZoom != null)
                         {
@@ -512,7 +505,7 @@ namespace XBMC_WebBrowser
                             //SendKeys.Send("^{ADD}");
                         }
                     }
-                    else if (XWKeys.getInstance().keyMapZoomOut.Contains(keys))
+                    else if (XWKeys.getInstance().keyMapZoomOut.Contains(keyData))
                     {
                         if (formZoom != null && magnifierZoom > 2)
                         {
@@ -528,41 +521,41 @@ namespace XBMC_WebBrowser
                             //SendKeys.Send("^{SUBTRACT}");
                         }
                     }
-                    else if (XWKeys.getInstance().keyMapTAB.Contains(keys))
+                    else if (XWKeys.getInstance().keyMapTAB.Contains(keyData))
                     {
                         pressTab();
                     }
-                    else if (XWKeys.getInstance().keyMapESC.Contains(keys))
+                    else if (XWKeys.getInstance().keyMapESC.Contains(keyData))
                     {
                         pressEsc();
                     }
-                    else if (XWKeys.getInstance().keyMapF5.Contains(keys))
+                    else if (XWKeys.getInstance().keyMapF5.Contains(keyData))
                     {
                         pressF5();
                     }
-                    else if (XWKeys.getInstance().keyMapMagnifier.Contains(keys))
+                    else if (XWKeys.getInstance().keyMapMagnifier.Contains(keyData))
                     {
                         showMagnifier();
                     }
-                    else if (XWKeys.getInstance().keyMapNavigate.Contains(keys))
+                    else if (XWKeys.getInstance().keyMapNavigate.Contains(keyData))
                     {
                         enterUrl();
                     }
-                    else if (XWKeys.getInstance().keyMapKeyboard.Contains(keys))
+                    else if (XWKeys.getInstance().keyMapKeyboard.Contains(keyData))
                     {
                         showKeyboard();
                     }
-                    else if (XWKeys.getInstance().keyMapFavourites.Contains(keys))
+                    else if (XWKeys.getInstance().keyMapFavourites.Contains(keyData))
                     {
                         showFavourites();
                     }
-                    else if (XWKeys.getInstance().keyMapShortCuts.Contains(keys))
+                    else if (XWKeys.getInstance().keyMapShortCuts.Contains(keyData))
                     {
                         showShortcuts();
                     }
-                    else if (XWKeys.getInstance().keyMapToggleMouse.Contains(keys))
+                    else if (XWKeys.getInstance().keyMapToggleMouse.Contains(keyData))
                         mouseEnabled = !mouseEnabled;
-                    else if (XWKeys.getInstance().keyMapContextMenu.Contains(keys))
+                    else if (XWKeys.getInstance().keyMapContextMenu.Contains(keyData))
                     {
                         showContextMenu();
                     }

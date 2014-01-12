@@ -122,7 +122,7 @@ namespace XBMC_WebBrowser
             Button btn = sender as Button;
             if (btn == null) return;
 
-            if (XWKeys.getInstance().keyMapUp.Contains(e.KeyCode.ToString()))
+            if (XWKeys.getInstance().keyMapUp.Contains(e.KeyCode))
             {
                 switch (btn.Name)
                 {
@@ -138,7 +138,7 @@ namespace XBMC_WebBrowser
                 }
                 e.SuppressKeyPress = true;
             }
-            else if (XWKeys.getInstance().keyMapDown.Contains(e.KeyCode.ToString()))
+            else if (XWKeys.getInstance().keyMapDown.Contains(e.KeyCode))
             {
                 switch (btn.Name)
                 {
@@ -154,7 +154,7 @@ namespace XBMC_WebBrowser
                 }
                 e.SuppressKeyPress = true;
             }
-            else if (XWKeys.getInstance().keyMapClick.Contains(e.KeyCode.ToString()))
+            else if (XWKeys.getInstance().keyMapClick.Contains(e.KeyCode))
             {
                 safeItemAndClose(btn);
                 e.SuppressKeyPress = true;
@@ -169,10 +169,8 @@ namespace XBMC_WebBrowser
 
         private void HandleSpecialKeys(Keys keyData)
         {
-            String keys = keyData.ToString();
-
             //Close?
-            if (XWKeys.getInstance().keyMapClose.Contains(keys))
+            if (XWKeys.getInstance().keyMapClose.Contains(keyData))
             {
                 this.Close();
                 return;
@@ -188,7 +186,7 @@ namespace XBMC_WebBrowser
         protected override bool ProcessCmdKey(ref Message msg, Keys keyDaya)
         {
             //Console.WriteLine("FormContextMenu PCommK | Msg: '" + msg.Msg.ToString() + "' | Key-Data: '" + keyDaya.ToString() + "' | W-Param: '" + msg.WParam.ToInt32().ToString() + "' | L-Param: '" + msg.LParam.ToInt32().ToString() + "'");
-            if (XWKeys.getInstance().AllKeys.Contains(keyDaya.ToString()))
+            if (XWKeys.getInstance().AllKeys.Contains(keyDaya))
             {
                 HandleSpecialKeys(keyDaya);
                 return true;

@@ -25,10 +25,9 @@ namespace XBMC_WebBrowser
             int bufferSize, uint flags);
 
         private Dictionary<String, String> _keyboardLayout = new Dictionary<string, string>();
-        private bool specialKeyPressed;
         private bool _shiftClicked = false;
         private String _startText;
-        private String _userDataFolder = "";
+        private String _userDataFolder = System.Threading.Thread.GetDomain().BaseDirectory+"\\userdata";
 
         public FormKeyboard(String title, String startText, Boolean inputEnabled, String userDataFolder)
         {
@@ -42,7 +41,6 @@ namespace XBMC_WebBrowser
             this.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this._lblTitle.Text = title;
             this._startText = startText;
-            specialKeyPressed = false;
             _txtText.Text = _startText;
             //read only?
             if (!inputEnabled)
@@ -133,15 +131,15 @@ namespace XBMC_WebBrowser
 
         private void textBox1_KeyDown(object sender, KeyEventArgs e)
         {
-            if (XWKeys.getInstance().keyMapClick.Contains(e.KeyCode.ToString()))
+            if (XWKeys.getInstance().keyMapClick.Contains(e.KeyCode))
             {
                 this.DialogResult = DialogResult.OK;
                 this.Close();
             }
-            else if (XWKeys.getInstance().keyMapDown.Contains(e.KeyCode.ToString())
-                || XWKeys.getInstance().keyMapUp.Contains(e.KeyCode.ToString())
-                || XWKeys.getInstance().keyMapRight.Contains(e.KeyCode.ToString())
-                || XWKeys.getInstance().keyMapLeft.Contains(e.KeyCode.ToString())
+            else if (XWKeys.getInstance().keyMapDown.Contains(e.KeyCode)
+                || XWKeys.getInstance().keyMapUp.Contains(e.KeyCode)
+                || XWKeys.getInstance().keyMapRight.Contains(e.KeyCode)
+                || XWKeys.getInstance().keyMapLeft.Contains(e.KeyCode)
             )
             {
                 _btn_kb_a_1.Focus();
@@ -314,7 +312,7 @@ namespace XBMC_WebBrowser
                 column = spl[1];
             }
 
-            if (XWKeys.getInstance().keyMapDelete.Contains(e.KeyCode.ToString()))
+            if (XWKeys.getInstance().keyMapDelete.Contains(e.KeyCode))
             {
                 if (_txtText.Text.Length > 0)
                 {
@@ -323,7 +321,7 @@ namespace XBMC_WebBrowser
                 }
             }
 
-            else if (XWKeys.getInstance().keyMapDown.Contains(e.KeyCode.ToString()))
+            else if (XWKeys.getInstance().keyMapDown.Contains(e.KeyCode))
             {
                 if (isKeyboardButton && row != "e")
                 {
@@ -354,7 +352,7 @@ namespace XBMC_WebBrowser
                         _btn_kb_a_1.Focus();
                 }
             }
-            else if (XWKeys.getInstance().keyMapUp.Contains(e.KeyCode.ToString()))
+            else if (XWKeys.getInstance().keyMapUp.Contains(e.KeyCode))
             {
                 if (isKeyboardButton && row != "a")
                 {
@@ -382,7 +380,7 @@ namespace XBMC_WebBrowser
                     }
                 }
             }
-            else if (XWKeys.getInstance().keyMapRight.Contains(e.KeyCode.ToString()))
+            else if (XWKeys.getInstance().keyMapRight.Contains(e.KeyCode))
             {
                 if (isKeyboardButton && column != "12")
                 {
@@ -414,7 +412,7 @@ namespace XBMC_WebBrowser
                     }
                 }
             }
-            else if (XWKeys.getInstance().keyMapLeft.Contains(e.KeyCode.ToString()))
+            else if (XWKeys.getInstance().keyMapLeft.Contains(e.KeyCode))
             {
                 if (isKeyboardButton && column != "1")
                 {
@@ -446,7 +444,7 @@ namespace XBMC_WebBrowser
                     }
                 }
             }
-            else if (XWKeys.getInstance().keyMapClick.Contains(e.KeyCode.ToString()))
+            else if (XWKeys.getInstance().keyMapClick.Contains(e.KeyCode))
             {
                 button_Click(sender, e);
             }
@@ -487,10 +485,8 @@ namespace XBMC_WebBrowser
 
         private void HandleSpecialKeys(Keys keyData)
         {
-            String keys = keyData.ToString();
-
             //Close?
-            if (XWKeys.getInstance().keyMapClose.Contains(keys))
+            if (XWKeys.getInstance().keyMapClose.Contains(keyData))
             {
                 this.Close();
                 return;
@@ -526,7 +522,7 @@ namespace XBMC_WebBrowser
         protected override bool ProcessCmdKey(ref Message msg, Keys keyDaya)
         {
             //sConsole.WriteLine("FormContextMenu PCommK | Msg: '" + msg.Msg.ToString() + "' | Key-Data: '" + keyDaya.ToString() + "' | W-Param: '" + msg.WParam.ToInt32().ToString() + "' | L-Param: '" + msg.LParam.ToInt32().ToString() + "'");
-            if (XWKeys.getInstance().AllKeys.Contains(keyDaya.ToString()))
+            if (XWKeys.getInstance().AllKeys.Contains(keyDaya))
             {
                 HandleSpecialKeys(keyDaya);
                 return true;
@@ -535,7 +531,7 @@ namespace XBMC_WebBrowser
             else
             {               
                 //Delete
-                if (msg.WParam.ToInt32() == 8)
+                if (keyDaya == Keys.Back)
                 {
                     if (_txtText.Text.Length > 0)
                     {
@@ -545,12 +541,12 @@ namespace XBMC_WebBrowser
                     }
                 }
                 //Printbare
-                else if (msg.WParam.ToInt32() >= 31)
+                else if ((byte)keyDaya >= 31)
                 {
                     bool shift = false;
                     bool altgr = false;
-                    if (keyDaya.ToString().Contains("Shift")) shift = true;
-                    if (keyDaya.ToString().Contains("Alt") && keyDaya.ToString().Contains("Control")) altgr = true;
+                    if ((keyDaya & Keys.Shift) == Keys.Shift) shift = true;
+                    if ((keyDaya & Keys.Alt) == Keys.Alt && (keyDaya & Keys.Control) == Keys.Control) altgr = true;
                     _txtText.AppendText(GetCharsFromKeys(keyDaya, shift, altgr));
                     return true;
                 }    

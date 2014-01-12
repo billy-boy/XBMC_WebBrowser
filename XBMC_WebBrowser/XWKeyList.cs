@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows.Forms;
 
 namespace XBMC_WebBrowser
 {
@@ -23,20 +24,20 @@ namespace XBMC_WebBrowser
 		{
 		}
 
-        public void Add(String item)
+        public void Add(Keys item)
 		{
             if (!base.InnerList.Contains(item))
                 base.InnerList.Add(item);
 		}
 
-        public void Remove(String item)
+        public void Remove(Keys item)
         {
             base.InnerList.Remove(item);
         }
 
-        public bool Contains(String item)
+        public bool Contains(Keys item)
         {
-            foreach (String s in base.InnerList)
+            foreach (Keys s in base.InnerList)
             {
                 if (s == item)
                     return true;
@@ -44,11 +45,11 @@ namespace XBMC_WebBrowser
             return false;
         }
 
-        public String this[int index]
+        public Keys this[int index]
 		{
 			get
 			{
-                return (String)base.InnerList[index];
+                return (Keys)base.InnerList[index];
 
 			}
 		}

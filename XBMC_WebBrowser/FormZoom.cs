@@ -27,10 +27,8 @@ namespace XBMC_WebBrowser
 
         private void HandleSpecialKeys(Keys keyData)
         {
-            String keys = keyData.ToString();
-
             //Close?
-            if (XWKeys.getInstance().keyMapClose.Contains(keys) || XWKeys.getInstance().keyMapMagnifier.Contains(keys))
+            if (XWKeys.getInstance().keyMapClose.Contains(keyData) || XWKeys.getInstance().keyMapMagnifier.Contains(keyData))
             {
                 this.Close();
                 return;
