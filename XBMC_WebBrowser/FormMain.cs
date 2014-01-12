@@ -34,7 +34,7 @@ namespace XBMC_WebBrowser
         private String mainUrl = "http://www.google.de/";
         private String mainTitle = "";
         private String userAgent = "";
-        private String userDataFolder = "";
+        private String userDataFolder = System.Threading.Thread.GetDomain().BaseDirectory + "\\userdata";
 
         private bool showPopups = false;
         private bool showScrollBar = true;
@@ -874,7 +874,7 @@ namespace XBMC_WebBrowser
         protected override bool ProcessCmdKey(ref Message msg, Keys keyDaya)
         {
             //Console.WriteLine("FormMain | Msg: '" + msg.Msg.ToString() + "' | Key-Data: '" + keyDaya.ToString() + "' | W-Param: '" + msg.WParam.ToInt32().ToString() + "' | L-Param: '" + msg.LParam.ToInt32().ToString() + "'");
-            if (XWKeys.getInstance().AllKeys.Contains(keyDaya.ToString()))
+            if (XWKeys.getInstance().AllKeys.Contains(keyDaya))
             {
                 HandleSpecialKeys(keyDaya);
                 return true;

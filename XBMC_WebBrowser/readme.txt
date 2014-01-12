@@ -15,38 +15,43 @@ KeyMappings
 Each control reason inside this webbrowser could be triggered by one or more (!) keyboard keys. The default keymapping is printed below. 
 If you want to modify these keymappings you have to create a file called 'keymap' inside your '%appdata%\Roaming\XBMC\userdata\xmbc_webbrowser\' Folder.
 
-If you want to assign a new keymapping you have to add an entry (one entry is one line) which assigns the letter by it's name. To assign more than one key to a control reason you only have to add more than one entry.
+If you want to assign a new keymapping you have to add an entry (one entry is one line) which assigns the keyboard key by it's ASCII number. To use shift, control or alt keys also you should add them separated by comma to the ascii number. To assign more than one key to a control reason you only have to add more than one entry.
 
-Up = NumPad8
-Down = NumPad2
-Left = NumPad4
-Right = NumPad6
-UpLeft = NumPad7
-UpRight = NumPad9
-DownLeft = NumPad1
-DownRight = NumPad3
-Click = NumPad5
-DoubleClick = 
-ZoomIn = Add
-ZoomOut = Subtract
-Magnifier = Menu, Alt 
+Up = 104
+Down = 98
+Left = 100
+Right = 102
+UpLeft = 103
+UpRight = 105
+DownLeft = 97
+DownRight = 99
+Click = 101
+DoubleClick = 101,Control
+ZoomIn = 107
+ZoomOut = 109
+Magnifier = 0,Control,Alt 
 Navigate = 
-Close = NumPad0
+Close = 96
 Keyboard = 
 Favourites = 
 ShortCuts = 
 TAB = 
 ESC = 
-ToggleMouse = Multiply
-ContextMenu = Divide
+ToggleMouse = 106
+ContextMenu = 111
 F5 = 
-Delete = Decimal
+Delete = 110
 
 So e.g. if you want the "UP"-Reason to be thrown by the W-Key and the Arrow-Up-Key you have to add the following lines:
-Up=A
-Up=Up
+Up=87
+Up=38
 
-If you don't know the correct name of the key you could try it out with a little .NET program. We use the Windows-API function 'protected override bool ProcessCmdKey(ref Message msg, Keys keyData)' and use the keyData.toString() result.
+It is not recommended to use the real ESC-key (27) because Windows does not send it to the method we use. 
+It is also not recommended to use the Enter/Return (13) and arrow keys (37-40) because in some cases if you select web browser controls they don't work any more. 
+
+If you don't know the correct name of the key you could try it out with a little .NET program. We use the Windows-API function 'protected override bool ProcessCmdKey(ref Message msg, Keys keyData)' and use the keyData result. Remember that keyData is flagged!
+There is a little application called key_check.exe inside this project which you can use to determine the right key.
+Otherwise you can go to: http://msdn.microsoft.com/en-us/library/system.windows.forms.keys%28v=vs.71%29.aspx
 
  Menu
 -----------

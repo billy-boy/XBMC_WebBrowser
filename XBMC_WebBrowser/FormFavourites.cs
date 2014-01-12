@@ -275,7 +275,7 @@ namespace XBMC_WebBrowser
         {
            
             //Close?
-            if (XWKeys.getInstance().keyMapClose.Contains(keyData))
+            if (XWKeys.getInstance().keyMapClose.Contains(keyData) || XWKeys.getInstance().keyMapFavourites.Contains(keyData))
             { 
                 this.Close();
                 return;

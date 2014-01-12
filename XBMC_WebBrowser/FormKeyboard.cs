@@ -27,7 +27,7 @@ namespace XBMC_WebBrowser
         private Dictionary<String, String> _keyboardLayout = new Dictionary<string, string>();
         private bool _shiftClicked = false;
         private String _startText;
-        private String _userDataFolder = System.Threading.Thread.GetDomain().BaseDirectory+"\\userdata";
+        private String _userDataFolder = "";
 
         public FormKeyboard(String title, String startText, Boolean inputEnabled, String userDataFolder)
         {
@@ -486,7 +486,7 @@ namespace XBMC_WebBrowser
         private void HandleSpecialKeys(Keys keyData)
         {
             //Close?
-            if (XWKeys.getInstance().keyMapClose.Contains(keyData))
+            if (XWKeys.getInstance().keyMapClose.Contains(keyData) || XWKeys.getInstance().keyMapKeyboard.Contains(keyData) || XWKeys.getInstance().keyMapNavigate.Contains(keyData))
             {
                 this.Close();
                 return;

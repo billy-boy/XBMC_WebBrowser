@@ -278,7 +278,7 @@ namespace XBMC_WebBrowser
         private void HandleSpecialKeys(Keys keyData)
         {
             //Close?
-            if (XWKeys.getInstance().keyMapClose.Contains(keyData))
+            if (XWKeys.getInstance().keyMapClose.Contains(keyData) || XWKeys.getInstance().keyMapShortCuts.Contains(keyData))
             {
                 this.Close();
                 return;

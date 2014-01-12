@@ -91,7 +91,8 @@ namespace XBMC_WebBrowser
         private void importKeyLine(String line, XWKeyList list)
         {
             String[] spl = line.Split(',');
-            Keys key = (Keys)Convert.ToByte(spl[0]);
+            byte b_key = Byte.Parse(spl[0]);
+            Keys key = (Keys)b_key;
             if (line.ToLower().Contains("shift"))
                 key = key | Keys.Shift;
             if (line.ToLower().Contains("alt"))
@@ -103,6 +104,7 @@ namespace XBMC_WebBrowser
 
         public void importKeymap(String file)
         {
+            clearKeymap();
             StreamReader str = new StreamReader(file);
             String line;
             while ((line = str.ReadLine()) != null)
@@ -156,7 +158,8 @@ namespace XBMC_WebBrowser
                         importKeyLine(spl[1].Trim(), keyMapF5);
                     else if (spl[0] == "ShowContextMenu")
                         importKeyLine(spl[1].Trim(), keyMapContextMenu);
-
+                    else if (spl[0] == "Delete")
+                        importKeyLine(spl[1].Trim(), keyMapDelete);
                 }
             }
             str.Close();
